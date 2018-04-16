@@ -46,4 +46,10 @@ export function deleteUser(data) {
         return Promise.resolve(res.data)
     })
 }
+// 获取部门
+export function getDepartments() {
+    return axios.get(url + 'getDepartments').then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
 
