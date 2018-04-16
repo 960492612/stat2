@@ -10,9 +10,9 @@
         </el-select>
       </el-form-item>
       <el-form-item label="路由权限:" prop="tickets" align="left">
-        <el-select v-model="data.tickets" placeholder="选择角色" style="width:50%;">
-          <el-option v-for="item in pls" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
-        </el-select>
+        <el-checkbox-group v-model="data.tickets">
+          <el-checkbox label="item" v-for="(item, index) in tickets" :key="index"></el-checkbox>
+        </el-checkbox-group>
       </el-form-item>
       <el-form-item label="部门:" prop="department" align="left">
         <el-select v-model="data.department" placeholder="选择部门" style="width:50%;">
@@ -47,7 +47,9 @@ export default {
       data: {
         name: null,
         role: null,
-        department: null
+        ticket:null,
+        department: null,
+        platform: null
       },
       rules: {
         name: [
