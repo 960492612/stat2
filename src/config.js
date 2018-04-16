@@ -1,0 +1,5 @@
+export const apiBaseUrl = process.env.NODE_ENV === 'production' ?'http://120.79.148.235/api/':'http://localhost:8082/api/'
+// export const apiBaseUrl = 'http://localhost:3000/api/'
+// export const apiBaseUrl_trace = process.env.NODE_ENV === 'production' ?'http://120.79.148.235/statis/api/':'http://localhost:8082/api/'
+// export const apiBaseUrl = 'http://localhost:3000/api/'
+export const baseDate = '2017-12-10'
