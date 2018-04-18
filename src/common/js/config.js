@@ -35,14 +35,15 @@ export const LogisticsByProductKey = {
   4: '数量',
   5: '品类'
 }
-// export const roles = {
-//   1: '最高管理员',
-//   2: '推广管理员',
-//   3: '物流管理员',
-//   4: '财务管理员',
-//   5: '平台管理员',
-//   6: '推广员'
-// }
+export const roleDefaultTickets = {
+  1: [1,2,6,7,8,9,10,11,12,13],
+  // 2: '推广管理员',
+  3: [5,6,10],
+  // 4: '财务管理员',
+  5: [7,9,10,11,12],
+  6: [1,2,3,4,7,8,9,10],
+  7: [7,9,10,11,12]
+}
 
 export const roles = {
   '最高管理员':1,
@@ -53,6 +54,7 @@ export const roles = {
   '推广员':6,
   '美工': 7
 }
+
 
 export const transformTypes = {
   0: '暂无转化率计算',

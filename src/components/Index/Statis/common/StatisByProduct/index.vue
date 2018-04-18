@@ -130,7 +130,7 @@ export default {
     getRecentestRecordBySid(data) {
       let ret = [];
       for (let key in data) {
-        // data[key].sort(sortByTime);
+        data[key].sort(sortByTime);
         this.groupData.push(data[key]);
         if (this.selectDate) {
           if (
@@ -165,6 +165,7 @@ export default {
       let countByProduct = {};
       data.forEach(item => {
         if (countByProduct[item.product] == undefined) {
+          // console.log(item.readCount);
           countByProduct[item.product] = {
             readCount: item.readCount,
             thumbsCount: item.thumbsCount,
@@ -172,16 +173,12 @@ export default {
             relayCount: item.relayCount,
             showCount: item.showCount
           };
-          // 记录有几个产品
-          // productNums++;
         } else {
           for (let key in countByProduct[item.product]) {
-            //   let count = countByProduct[item.product][key]
-            countByProduct[item.product][key] += item[key];
+            countByProduct[item.product][key] += item[key] ;
           }
         }
       });
-      // this.$refs.productEchart.style.height = productNums * 80 + "px";
       return countByProduct;
     },
     changeDateMethod(value) {
@@ -307,6 +304,9 @@ export default {
     }
   }
 };
+function sortByTime(a, b) {
+  return Number(b.time) - Number(a.time);
+}
 </script>
 
 <style lang="scss" scoped>

@@ -53,3 +53,8 @@ export function getDepartments() {
     })
 }
 
+export function getTickets() {
+    return axios.get(url + 'getTickets').then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

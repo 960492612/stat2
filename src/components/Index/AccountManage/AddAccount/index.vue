@@ -5,13 +5,13 @@
         <el-input v-model="data.name" placeholder="填写唯一的用户名" style="width:50%;"></el-input>
       </el-form-item>
       <el-form-item label="角色:" prop="role" align="left">
-        <el-select v-model="data.role" placeholder="选择角色" style="width:50%;">
-          <el-option v-for="item in pls" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
+        <el-select v-model="data.role" placeholder="选择角色" style="width:50%;" @change="changeRole">
+          <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="路由权限:" prop="tickets" align="left">
+      <el-form-item label="路由权限:" prop="tickets" align="left" style="width:50%;">
         <el-checkbox-group v-model="data.tickets">
-          <el-checkbox label="item" v-for="(item, index) in tickets" :key="index"></el-checkbox>
+          <el-checkbox  v-for="(item, index) in tickets" :key="item" :label="item" class="checkbox">{{index}}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <el-form-item label="部门:" prop="department" align="left">
@@ -19,7 +19,7 @@
           <el-option v-for="item in departments" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="所属销售平台:" prop="department" align="left">
+      <el-form-item label="销售平台:" prop="department" align="left">
         <el-select v-model="data.platform" placeholder="没有所属的销售平台则不填" style="width:50%;">
           <el-option v-for="item in platforms" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
         </el-select>
@@ -34,10 +34,10 @@
 <script>
 import { debounce } from "common/js/util";
 import { getPlatforms } from "api/store";
-import { hasUser, addUser, getDepartments } from "api/account";
+import { hasUser, addUser, getDepartments, getTickets } from "api/account";
 import { mapGetters } from "vuex";
 import Submit from "base/Submit";
-import { roles } from "common/js/config";
+import { roles , roleDefaultTickets} from "common/js/config";
 export default {
   data() {
     var _hasKey = (rule, value, callback) => {
@@ -47,7 +47,7 @@ export default {
       data: {
         name: null,
         role: null,
-        ticket:null,
+        tickets: [],
         department: null,
         platform: null
       },
@@ -61,6 +61,7 @@ export default {
       },
       // pls: [{ id: 1, name: "推广员" }, { id: 5, name: "管理员" }],
       platforms: [],
+      tickets: {},
       departments: [],
       working: false,
       submitAbled: true
@@ -74,14 +75,16 @@ export default {
     }
     this._debounce = this._hasKey();
     this._getPlatforms();
+    this._getTickets();
+    this._getDepartments()
   },
   computed: {
-    pls() {
+    roles() {
       let ret = [];
       for (let i in roles) {
         ret.push({
-          id: i,
-          name: roles[i]
+          id: roles[i],
+          name: i
         });
       }
       return ret;
@@ -107,6 +110,24 @@ export default {
           this.platforms = res.data;
         }
       });
+    },
+    _getDepartments() {
+      getDepartments().then(res => {
+        if (res.code == 1) {
+          this.departments = res.data;
+        }
+      });
+    },
+    _getTickets() {
+      getTickets().then(res => {
+        if (res.code == 1) {
+          this.tickets = res.data;
+        }
+      });
+    },
+    // 根据角色默认给权限
+    changeRole(value){
+      this.data.tickets = roleDefaultTickets[value]
     },
     submit() {
       this.$refs.form.validate(valid => {
@@ -138,8 +159,14 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.addProduct {
+.addUser {
   margin-top: 20px;
   width: 50%;
+  .checkbox{
+    width: 40%;
+    &:nth-of-type(1){
+      margin-left: 30px;
+    }
+  }
 }
 </style>
