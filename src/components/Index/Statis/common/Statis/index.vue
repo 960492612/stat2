@@ -169,6 +169,7 @@ export default {
       });
     },
     _getRecords() {
+      
       getRecords(this.params).then(this.getRecordsCallback);
     },
     getRecordsCallback(res) {

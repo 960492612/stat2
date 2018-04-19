@@ -5,7 +5,7 @@
         <el-input v-model="data.name" placeholder="填写唯一的用户名" style="width:50%;"></el-input>
       </el-form-item>
       <el-form-item label="角色:" prop="role" align="left">
-        <el-select v-model="data.role" placeholder="选择角色" style="width:50%;" @change="changeRole">
+        <el-select v-model="data.role" placeholder="选择角色(路由权限不建议手动选择)" style="width:50%;" @change="changeRole">
           <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id">{{item.name}}</el-option>
         </el-select>
       </el-form-item>
@@ -68,7 +68,7 @@ export default {
     };
   },
   created() {
-    if (this.role != 1) {
+    if (this.role != roles['最高管理员']) {
       this.$message.info("您无权添加账户");
       this.$router.push({ name: "Accounts" });
       return;
@@ -137,13 +137,13 @@ export default {
       });
     },
     _addUser() {
-      addUser({ ...this.data, ...{ role: this.role } }).then(res => {
+      addUser(this.data).then(res => {
         if (res.code == 1) {
           this.$message({
             message: `添加成功，默认密码是${res.data.default_pwd}`,
             type: "success",
             onClose: () => {
-              this.$router.push({ name: "Accounts" });
+              this.$router.push({ name: "AccountsList" });
             }
           });
         } else {
