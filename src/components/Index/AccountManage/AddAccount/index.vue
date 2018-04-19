@@ -68,11 +68,6 @@ export default {
     };
   },
   created() {
-    if (this.role != roles['最高管理员']) {
-      this.$message.info("您无权添加账户");
-      this.$router.push({ name: "Accounts" });
-      return;
-    }
     this._debounce = this._hasKey();
     this._getPlatforms();
     this._getTickets();
@@ -89,7 +84,7 @@ export default {
       }
       return ret;
     },
-    ...mapGetters(["id", "role"])
+    ...mapGetters(["id"])
   },
   mounted() {},
   methods: {

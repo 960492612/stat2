@@ -13,7 +13,7 @@
         <el-table-column prop="oper" label="操作" align="center">
           <template slot-scope="scope">
             <el-button @click.native.prevent="editRow(scope.row)" type="text">
-              修改
+              修改权限
             </el-button>
             <el-button @click.native.prevent="deleteRow(scope.row, scope.$index)" type="text">
               删除
@@ -41,17 +41,8 @@ export default {
     },
     ...mapGetters(["id", "role", "loginName", "department"])
   },
-  created() {
-    if (this.role != 1) {
-      this.tableData.push({
-        id: this.id,
-        name: this.loginName,
-        role: this.role,
-        department: this.department
-      });
-    }else{
+  created() {   
       this._getAllUsers();
-    }
     
   },
   methods: {
@@ -63,13 +54,9 @@ export default {
       });
     },
     editRow(item) {
-      if (item.id != this.id) {
-        this.$message.error("该账户您不可进行修改！");
-        return;
-      }
       this.$router.push({
-        name: "EditAccount",
-        params: { oldName: item.name, pid: item.pid }
+        name: "EditRole",
+        params: item
       });
     },
     deleteRow(item, index) {
