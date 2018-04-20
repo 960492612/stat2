@@ -36,7 +36,7 @@ export const LogisticsByProductKey = {
   5: '品类'
 }
 export const roleDefaultTickets = {
-  1: [1,2,6,7,8,9,10,11,12,13],
+  1: [1,2,6,7,8,9,10,11,12,13,14],
   // 2: '推广管理员',
   3: [5,6,10],
   // 4: '财务管理员',
