@@ -27,6 +27,9 @@
       <el-date-picker v-model="selectedDate" type="daterange" :start-placeholder="$t('search.placeholder.start')" :end-placeholder="$t('search.placeholder.end')" :picker-options="pickerOptions" @change="changeDateMethod" size="medium">
       </el-date-picker>
     </div>
+    <div class="search-item">
+      <el-button type="primary">查找</el-button>
+    </div>
   </div>
 </template>
 <script>

@@ -97,7 +97,7 @@ export default {
   //   }
   // }
   .menu {
-    height: 100%;
+    min-height: 100%;
     // width: 250px;
     .link {
       text-decoration: underline;

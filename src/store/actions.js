@@ -4,6 +4,7 @@ import cookie from 'js-cookie'
 import storage from 'good-storage'
 import { isLogin } from "api/login";
 import Index from "@/components/Index";
+// import { getProducts } from "api/product";
 // 字符串常量
 const USERINFO = 'userInfo'
 const ROUTER = 'router'

@@ -1,10 +1,8 @@
 <template>
   <div>
     <subMenu :topMenuName="`ProductSurveyManage`"></subMenu>
-    <keep-alive>
-      <router-view/>
-    </keep-alive>
-    
+    <router-view/>
+
   </div>
 </template>
 <script>
@@ -14,7 +12,7 @@ export default {
   name: "ProductSurveyManage",
   components: {
     subMenu
-  },
+  }
 };
 </script>
 <style lang="scss" scoped>
