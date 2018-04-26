@@ -75,7 +75,7 @@
 <script>
 import { getProducts } from "api/product";
 import { getParams, saveSurvey, checkProduct } from "api/productSurvey";
-import { getPlatforms } from "api/store";
+// import { getPlatforms } from "api/store";
 import { mapGetters } from "vuex";
 export default {
   data() {
@@ -85,8 +85,8 @@ export default {
       params: [],
       form: {},
       table: [],
-      selectedPlatform: null,
-      platforms: [],
+      // selectedPlatform: null,
+      // platforms: [],
       dynamicParams: {},
       addParamNumber: null,
       desc: null
@@ -103,7 +103,7 @@ export default {
   },
   created() {
     this._getProduct();
-    this._getPlatforms();
+    // this._getPlatforms();
     this.index = 0;
   },
   methods: {
@@ -125,18 +125,18 @@ export default {
         }
       });
     },
-    _getPlatforms() {
-      getPlatforms().then(res => {
-        if (res.code == 1) {
-          this.platforms = res.data;
-          // if (this.isShow1) {
-          this.selectedPlatform = this.platforms.map(item => {
-            return item.id;
-          });
-          // }
-        }
-      });
-    },
+    // _getPlatforms() {
+    //   getPlatforms().then(res => {
+    //     if (res.code == 1) {
+    //       this.platforms = res.data;
+    //       // if (this.isShow1) {
+    //       this.selectedPlatform = this.platforms.map(item => {
+    //         return item.id;
+    //       });
+    //       // }
+    //     }
+    //   });
+    // },
     // 选上默认值
     assignDefault(params) {
       params.forEach(item => {
@@ -231,6 +231,7 @@ export default {
 .CreateProductSurvey {
   margin-top: 20px;
   text-align: left;
+
   .content {
     margin-top: 15px;
 
@@ -246,7 +247,10 @@ export default {
   }
   .form-item {
     float: left;
-    width: 320px;
+    width: 340px;
+    .el-select {
+      width: 100%;
+    }
     //   min-width: 250px;
   }
 }

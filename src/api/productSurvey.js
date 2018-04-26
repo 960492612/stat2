@@ -28,6 +28,11 @@ export function saveSurvey(data) {
         return Promise.resolve(res.data)
     })
 }
+export function editSurvey(data) {
+    return axios.post(url + 'editSurvey', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
 export function deleteSurvey(data) {
     return axios.post(url + 'deleteSurvey', data).then((res) => {
         return Promise.resolve(res.data)
@@ -47,6 +52,11 @@ export function canclePublished(data) {
 
 export function copySurvey(data) {
     return axios.post(url + 'copySurvey', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+export function getPublishSurveys(data) {
+    return axios.get(url + 'getPublishSurveys', {params:data}).then((res) => {
         return Promise.resolve(res.data)
     })
 }

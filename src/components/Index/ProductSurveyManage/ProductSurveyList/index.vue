@@ -209,7 +209,7 @@ export default {
     },
     editRow(row) {
       this.$router.push({
-        name: "UpdateProduct",
+        name: "EditProductSurvey",
         params: row
       });
     },
@@ -247,7 +247,7 @@ export default {
         }
       )
         .then(() => {
-          deleteSurvey({ id: row.id, owner: this.id }).then(res => {
+          deleteSurvey({ surveyId: row.id}).then(res => {
             if (res.code == 1) {
               this.$message({
                 type: "success",

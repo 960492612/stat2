@@ -90,6 +90,10 @@ export default {
     height: 44px;
     line-height: 44px;
     font-size: 16px;
+    border-right: 1px solid #ddd;
+    &:nth-of-type(3n){
+       border-right: none;
+    }
     .key {
       flex:1;
       // width: 200px;
