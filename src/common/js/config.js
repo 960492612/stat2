@@ -62,3 +62,17 @@ export const transformTypes = {
   2: '以订单数/页面访问量(pv)计算转化率',
   3: '以订单数/曝光量计算转化率'
 }
+
+export const PARAMTYPES = {
+  0: '公用参数',
+  1: '安防摄像头',
+  2: '对讲机',
+  3: '灯具',
+  4: '工具'
+}
+export const INPUTTYPES = {
+  1: '文本输入',
+  2: '单项选择',
+  3: '多项选择',
+  4: '时间选择'
+}

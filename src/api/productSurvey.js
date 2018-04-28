@@ -7,7 +7,11 @@ export function getParams(data) {
         return Promise.resolve(res.data)
     })
 }
-
+export function getAllParams() {
+    return axios.get(url + 'getAllParams').then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
 export function checkProduct(data) {
     return axios.get(url + 'checkProduct', {params:data}).then((res) => {
         return Promise.resolve(res.data)
@@ -56,7 +60,39 @@ export function copySurvey(data) {
     })
 }
 export function getPublishSurveys(data) {
-    return axios.get(url + 'getPublishSurveys', {params:data}).then((res) => {
+    return axios.get(url + 'getPublishSurveys', {params:{data}}).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+export function saveFeedback(data) {
+    return axios.post(url + 'saveFeedback', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+export function getPublishStores(data) {
+    return axios.get(url + 'getPublishStores', {params:data}).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+export function checkParam(data) {
+    return axios.get(url + 'checkParam', {params:data}).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+export function addParam(data) {
+    return axios.post(url + 'addParam', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function editParam(data) {
+    return axios.post(url + 'editParam', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function deleteParam(data) {
+    return axios.post(url + 'deleteParam', data).then((res) => {
         return Promise.resolve(res.data)
     })
 }

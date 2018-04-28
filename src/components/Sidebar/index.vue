@@ -43,6 +43,11 @@ export default {
   created(){
     this.groupRouter = this._getGroupRouter()
   },
+  watch:{
+    router(){
+      this.groupRouter = this._getGroupRouter()
+    }
+  },
   methods:{
     _getGroupRouter() {
       // let ret = []

@@ -1,51 +1,43 @@
 <template>
-    <div>
-        <div class="ProductSurveyList">
-            <el-table :data="tableData">
-                <div slot="empty">
-                    <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
-                <el-table-column  label="处理状态" width="120" align="center">
-                    <template slot-scope="scope">
-                        <i class="el-icon-news" style="color: red;" v-if="scope.row.isConfirm == 0">未确认</i>
-                        <i class="el-icon-check" style="color: green;" v-if="scope.row.isConfirm == 1">已确认</i>
-                        
-                    </template>
-                </el-table-column>
-                <el-table-column prop="id" label="调查表id" width="180" align="center">
-                    
-                </el-table-column>
-                <el-table-column prop="product" label="产品" width="180" align="center">
-                </el-table-column>
-                <el-table-column prop="category" :label="$t('product.label.category')" width="180" align="center" :filter-method="filterCategory" :filters="categories">
-                </el-table-column>
-                <el-table-column prop="desc" :label="$t('product.label.desc')" width="180" align="center">
-                </el-table-column>
-                <el-table-column prop="publishTime" label="发布时间" width="180" align="center" :formatter="timeFormat">
-                </el-table-column>
-                <el-table-column prop="publisher" label="发布人" width="180" align="center">
-                </el-table-column>
-                <el-table-column prop="oper" :label="$t('oper.oper')" align="center">
-                    <template slot-scope="scope">
+  <div>
+    <div class="ProductSurveyList">
+      <el-table :data="tableData">
+        <div slot="empty">
+          <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+        <el-table-column label="处理状态" width="120" align="center">
+          <template slot-scope="scope">
+            <i class="el-icon-news" style="color: red;" v-if="scope.row.isConfirm == 0">未确认</i>
+            <i class="el-icon-check" style="color: green;" v-if="scope.row.isConfirm == 1">已确认</i>
 
-                        <el-button @click.native.prevent="seeDetails(scope.row)" type="text">
-                            查看参数详情
-                        </el-button>
-                        <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 1">
-                            填写反馈
-                        </el-button>
-                        <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 0">
-                            {{$t('oper.edit')}}
-                        </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="id" label="调查表id" width="100" align="center">
 
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <el-dialog title="调查表详情" :visible.sync="isShowInfo" width="80%">
-            <product-survey-info :survey="currentSurvey" />
-        </el-dialog>
-
+        </el-table-column>
+        <el-table-column prop="product" label="产品" width="180" align="center">
+        </el-table-column>
+        <el-table-column prop="category" :label="$t('product.label.category')" width="180" align="center" :filter-method="filterCategory" :filters="categories">
+        </el-table-column>
+        <el-table-column prop="desc" :label="$t('product.label.desc')" width="180" align="center">
+        </el-table-column>
+        <el-table-column prop="publishTime" label="发布时间" width="180" align="center" :formatter="timeFormat">
+        </el-table-column>
+        <el-table-column prop="publisher" label="发布人" width="180" align="center">
+        </el-table-column>
+        <el-table-column prop="confirmTime" label="确认时间" width="180" align="center" :formatter="timeFormat1" >
+        </el-table-column>
+        <el-table-column prop="oper" :label="$t('oper.oper')" align="center">
+          <template slot-scope="scope">
+            <el-button @click.native.prevent="seeDetails(scope.row)" type="text">
+              查看参数详情
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
+   
+
+  </div>
 </template>
 <script>
 import { getPublishSurveys } from "api/productSurvey";
@@ -98,7 +90,7 @@ export default {
   },
   methods: {
     _getPublishSurveys() {
-      getPublishSurveys({ adminId: this.id }).then(res => {
+      getPublishSurveys({ admin_id: this.id }).then(res => {
         if (res.code == 1) {
           if (res.data.length == 0) {
             this.loadStatus = 0;
@@ -132,73 +124,21 @@ export default {
       return row.category == value;
     },
     timeFormat(item) {
-      return formatTime(item.publishTime);
+      return formatTime(item.publishTime, "yyyy-MM-dd hh:mm");
     },
-    seeDetails(row){
-        this.$router.push({
-            name: 'ProductSurveyInfo',
-            params: row
-        })
+    timeFormat1(item) {
+      return formatTime(item.confirmTime, "yyyy-MM-dd hh:mm");
     },
-    editRow(row) {
+    seeDetails(row) {
       this.$router.push({
-        name: "EditProductSurvey",
+        name: "ProductSurveyInfo",
         params: row
       });
     },
-    copyRow(row) {
-      this.currentSurvey = row;
-      this.isShowCopyBox = true;
-      this.selectProduct = null;
-      this._getProduct();
-    },
-    copySurvey(row) {
-      if (!this.selectProduct) {
-        this.$message.info("请选择部门");
-        return;
-      }
-      copySurvey({
-        surveyId: this.currentSurvey.id,
-        productId: this.selectProduct
-      }).then(res => {
-        if (res.code == 1) {
-          this.$message.success("复制成功");
-          this._getSurveys();
-        } else {
-          this.$message.error("复制失败");
-        }
-      });
-    },
-    deleteRow(row, index) {
-      this.$confirm(
-        this.$t("product.delete.confirm"),
-        this.$t("product.delete.tip"),
-        {
-          confirmButtonText: this.$t("product.delete.sure"),
-          cancelButtonText: this.$t("product.delete.cancel"),
-          type: "warning"
-        }
-      )
-        .then(() => {
-          deleteSurvey({ surveyId: row.id }).then(res => {
-            if (res.code == 1) {
-              this.$message({
-                type: "success",
-                message: this.$t("product.delete.success")
-              });
-              this._getSurveys();
-            } else {
-              this.$message.error(this.$t("product.delete.error"));
-            }
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: this.$t("product.delete.canceled")
-          });
-        });
-    }
+    
+    
+    
+    
   }
 };
 </script>

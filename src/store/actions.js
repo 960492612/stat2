@@ -39,7 +39,7 @@ export const checkLogin = ({ commit }) => {
 export const setLogout = ({ commit }) => {
     cookie.remove(USERINFO)
     storage.remove(ROUTER)
-    // window.location.reload()
+    window.location.reload()
     commit(types.SET_LOGOUT)
     commit(types.SET_ISLOGIN, false)
 }

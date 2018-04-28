@@ -4,6 +4,13 @@
       <el-table :data="tableData">
         <div slot="empty">
           <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+        <el-table-column label="处理状态" width="120" align="center">
+          <template slot-scope="scope">
+            <i class="el-icon-edit" style="color: red;" v-if="scope.row.isPublished == 0">未发布</i>
+            <i class="el-icon-check" style="color: green;" v-if="scope.row.isPublished == 1">已发布</i>
+
+          </template>
+        </el-table-column>
         <el-table-column prop="id" label="调查表id" width="80" align="center">
         </el-table-column>
         <el-table-column prop="product" label="产品" width="180" align="center">
@@ -26,7 +33,7 @@
             <el-button @click.native.prevent="preview(scope.row)" type="text">
               预览
             </el-button>
-            <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 1">
+            <el-button @click.native.prevent="getFeedback(scope.row)" type="text" v-if="scope.row.isPublished == 1">
               查看反馈
             </el-button>
             <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 0">
@@ -51,7 +58,7 @@
       </el-select>
       <el-button type="primary" size="medium" @click="publish()">确认发布</el-button>
     </el-dialog>
-    <el-dialog title="选择产品进行复制" :visible.sync="isShowCopyBox">
+    <el-dialog title="选择目标产品进行复制" :visible.sync="isShowCopyBox">
       <el-select v-model="selectProduct" placeholder="选择产品" size="medium">
         <el-option v-for="(item, index) in products" :key="index" :label="item.name" :value="item.id"></el-option>
       </el-select>
@@ -219,6 +226,9 @@ export default {
       this.selectProduct = null;
       this._getProduct();
     },
+    getFeedback(row){
+      this.$router.push({name:'ProductSurveyFeedback', params: row})
+    },
     copySurvey(row) {
       if (!this.selectProduct) {
         this.$message.info("请选择部门");
@@ -247,7 +257,7 @@ export default {
         }
       )
         .then(() => {
-          deleteSurvey({ surveyId: row.id}).then(res => {
+          deleteSurvey({ surveyId: row.id }).then(res => {
             if (res.code == 1) {
               this.$message({
                 type: "success",
