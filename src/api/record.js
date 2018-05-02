@@ -10,14 +10,14 @@ export function addRecords(data) {
 }
 
 
-export function getSubjectsRocordBySid(sid) {
-    return axios.get(url + 'getSubjectsRocordBySid',  {params:{sid}}  ).then((res) => {
+export function getSubjectsRocordBySid(subjectId) {
+    return axios.get(url + 'getSubjectsRocordBySid',  {params:{subjectId}}  ).then((res) => {
         return Promise.resolve(res.data)
     })
 }
 
 export function getRecords(params) {
-    return axios.get(url + 'getRecords', { params: {params} }).then((res) => {
+    return axios.get(url + 'getRecords', { params: params }).then((res) => {
         return Promise.resolve(res.data)
     })
 }

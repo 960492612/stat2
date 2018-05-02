@@ -1,73 +1,76 @@
 <template>
-    <div class="CreateProductSurvey">
-        <div>
-            <span v-if="survey">当前产品：{{survey.product}}</span>
-            <el-button type="success" size="medium" @click="saveTable">保存</el-button>
-        </div>
-        <div class="content">
-            <section v-if="params.length>0">
-                <h3>规定参数区</h3>
-                <el-form :model="form" label-width="120px" label-position="right" style="overflow:hidden;">
-                    <el-form-item label="描述:">
-                        <el-input v-model="desc" placeholder="填写该调查表描述" size="medium" style="width:50%;"></el-input>
-                    </el-form-item>
-                    <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
-                        <!-- 文本输入 -->
-                        <el-input v-model="form[item.id]" placeholder="" v-if="item.inputType==1" size="medium"></el-input>
-                        <!-- 单选 -->
-                        <el-select v-model="form[item.id]" placeholder="" filterable v-if="item.inputType==2" style="" size="medium">
-                            <el-option v-for="(_item, index) in item.options" :key="index" :value="_item.name" :label="_item.name"></el-option>
-                        </el-select>
-                        <!-- 多选 -->
-                        <el-select v-model="form[item.id]" placeholder="" multiple filterable v-if="item.inputType==3" collapse-tags style="" size="medium">
-                            <el-option v-for="(_item, index) in item.options" :key="index" :value="_item.name" :label="_item.name"></el-option>
-                        </el-select>
-                        <!-- 时间 -->
-                        <el-date-picker v-model="form[item.id]" placeholder="" v-if="item.inputType==4" size="medium" style="width:200px;"></el-date-picker>
-                    </el-form-item>
-                </el-form>
-            </section>
-            <section v-if="params.length>0">
-                <h3>自定义参数区</h3>
-                <el-table :data="table" style="width:50%;margin: 0 auto;">
-                    <el-table-column label="参数名" prop="index" width="200">
-                        <template slot-scope="scope">
-                            <el-input v-model="dynamicParams[scope.row.index]['key']" placeholder=""></el-input>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="参数值" prop="value">
-                        <template slot-scope="scope">
-                            <el-input v-model="dynamicParams[scope.row.index]['value']" placeholder=""></el-input>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="操作" prop="value" width="200">
-                        <template slot-scope="scope">
-                            <el-button type="danger" plain @click="deleteParam(scope.row)" size="medium">删除</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <div style="margin-top:20px; text-align: center;" @keyup.enter="enterMethod">
-
-                    <el-input v-model.number="addParamNumber" placeholder="填写数量" style="width:280px;">
-                        <el-button type="primary" @click="addParam" size="medium" slot="prepend">添加</el-button>
-                        <span type="primary" slot="append">个参数</span>
-                        <el-button type="primary" @click="addParam" size="medium" slot="append" class="el-icon-check"></el-button>
-                    </el-input>
-
-                </div>
-
-            </section>
-
-        </div>
+  <div class="CreateProductSurvey">
+    <div>
+      <span v-if="survey">当前产品：{{survey.product}}</span>
+      <el-button type="success" size="medium" @click="saveTable">保存</el-button>
     </div>
+    <div class="content">
+      <section v-if="params.length>0">
+        <h3>规定参数区</h3>
+        <el-form :model="form" label-width="120px" label-position="right" style="overflow:hidden;">
+          <el-form-item label="卖点说明:">
+            <el-input type="textarea" v-model="desc" placeholder="输入框可通过右下角图标进行大小调整" size="medium" style="width:50%;" :rows="5"></el-input>
+          </el-form-item>
+          <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
+            <!-- 文本输入 -->
+            <el-input v-model="form[item.id]" placeholder="" v-if="item.inputType==1" size="medium"></el-input>
+            <!-- 单选 -->
+            <el-select v-model="form[item.id]" placeholder="" filterable v-if="item.inputType==2" style="" size="medium">
+              <el-option v-for="(_item, index) in item.options" :key="index" :value="_item.name" :label="_item.name"></el-option>
+            </el-select>
+            <!-- 多选 -->
+            <el-select v-model="form[item.id]" placeholder="" multiple filterable v-if="item.inputType==3" collapse-tags style="" size="medium">
+              <el-option v-for="(_item, index) in item.options" :key="index" :value="_item.name" :label="_item.name"></el-option>
+            </el-select>
+            <!-- 时间 -->
+            <el-date-picker v-model="form[item.id]" placeholder="" v-if="item.inputType==4" size="medium" style="width:200px;"></el-date-picker>
+          </el-form-item>
+        </el-form>
+      </section>
+      <section v-if="params.length>0">
+        <h3>自定义参数区</h3>
+        <el-table :data="table" style="width:50%;margin: 0 auto;">
+          <el-table-column label="参数名" prop="index" width="200">
+            <template slot-scope="scope">
+              <el-input v-model="dynamicParams[scope.row.index]['key']" placeholder=""></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="参数值" prop="value">
+            <template slot-scope="scope">
+              <el-input v-model="dynamicParams[scope.row.index]['value']" placeholder=""></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" prop="value" width="200">
+            <template slot-scope="scope">
+              <el-button type="danger" plain @click="deleteParam(scope.row)" size="medium">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div style="margin-top:20px; text-align: center;" @keyup.enter="enterMethod">
+
+          <el-input v-model.number="addParamNumber" placeholder="填写数量" style="width:280px;">
+            <el-button type="primary" @click="addParam" size="medium" slot="prepend">添加</el-button>
+            <span type="primary" slot="append">个参数</span>
+            <el-button type="primary" @click="addParam" size="medium" slot="append" class="el-icon-check"></el-button>
+          </el-input>
+
+        </div>
+
+      </section>
+
+    </div>
+  </div>
 </template>
 <script>
 // import { getProducts } from "api/product";
-import { getParams, editSurvey, getSurveyParamsBySurveyId } from "api/productSurvey";
+import {
+  getParams,
+  editSurvey,
+  getSurveyParamsBySurveyId
+} from "api/productSurvey";
 import { getPlatforms } from "api/store";
 import { mapGetters } from "vuex";
 export default {
- 
   data() {
     return {
       survey: null,
@@ -82,52 +85,47 @@ export default {
   },
   //   1是文本，2是单选，3是多选，4是时间
   computed: {
-    
     ...mapGetters(["id"])
   },
   created() {
-      if(this.$route.params.id){
-          this.survey = this.$route.params
-          this.desc = this.survey.desc
-          this._getParams(this.survey.category_id)
-      }else{
-          this.$router.go(-1)
-      }
-      
+    if (this.$route.params.id) {
+      this.survey = this.$route.params;
+      this.desc = this.survey.desc;
+      this._getParams(this.survey.category_id);
+    } else {
+      this.$router.go(-1);
+    }
+
     // this._getPlatforms();
 
-    this.initDynamicParams()
-   
+    this.initDynamicParams();
   },
   methods: {
-    initDynamicParams(){
-        let dynamicParams = JSON.parse(this.survey.dynamicParams)
-        let i = 0
-        this.table = dynamicParams.map(item=>{
-            this.dynamicParams[i] = {...{}, ...item}
-            return {
-                index: i++,
-                value: item.value
-            }
-        })
-        
-        this.index = i - 1
+    initDynamicParams() {
+      let dynamicParams = JSON.parse(this.survey.dynamicParams);
+      let i = 0;
+      this.table = dynamicParams.map(item => {
+        this.dynamicParams[i] = { ...{}, ...item };
+        return {
+          index: i++,
+          value: item.value
+        };
+      });
+
+      this.index = i - 1;
     },
-     _getSurveyParams() {
+    _getSurveyParams() {
       getSurveyParamsBySurveyId({ surveyId: this.survey.id }).then(res => {
         if (res.code == 1) {
-            res.data.forEach(item=>{
-                if(item.inputType <= 2){
-                    this.form[item.params_id] = item.value
-                }else if(item.inputType == 3){
-                    this.form[item.params_id] = JSON.parse(item.value)
-                }else{
-                    this.form[item.params_id] = new Date(item.value)
-                }
-                
-                
-            })
-         
+          res.data.forEach(item => {
+            if (item.inputType <= 2) {
+              this.form[item.params_id] = item.value;
+            } else if (item.inputType == 3) {
+              this.form[item.params_id] = JSON.parse(item.value);
+            } else {
+              this.form[item.params_id] = new Date(item.value);
+            }
+          });
         }
       });
     },
@@ -136,11 +134,11 @@ export default {
         if (res.code == 1) {
           this.params = res.data;
           this.assignDefault(res.data);
-          this._getSurveyParams()
+          this._getSurveyParams();
         }
       });
     },
-   
+
     // 选上默认值
     assignDefault(params) {
       params.forEach(item => {

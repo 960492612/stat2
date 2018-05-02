@@ -19,8 +19,8 @@
       <section v-if="params.length>0">
         <h3>规定参数区</h3>
         <el-form :model="form" label-width="120px" label-position="right" style="overflow:hidden;">
-          <el-form-item label="描述:">
-            <el-input v-model="desc" placeholder="填写该调查表描述" size="medium" style="width:50%;"></el-input>
+          <el-form-item label="卖点说明:">
+            <el-input type="textarea" v-model="desc" placeholder="输入框可通过右下角图标进行大小调整" size="medium" style="width:50%;" :rows="5"></el-input>
           </el-form-item>
           <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
             <!-- 文本输入 -->
@@ -180,6 +180,9 @@ export default {
       checkProduct({ product_id: this.product }).then(res => {
         if (res.code == 1) {
           this.$message.info("该产品的调查表已存在");
+          this.form = {}
+          this.table = []
+          this.params = []
           return;
         } else {
           this._getParams(this.product_category);

@@ -20,8 +20,7 @@
       <div class="info channel">
         <span>{{$t('statis.label.registerTime')}}：</span>{{timeFormat(tableData[0].startTime)}}</div>
       <el-table :data="tableData" style="marginTop:10px;marginLeft:20px;" border stripe :highlight-current-row="false" header-cell-class-name="header-cell">
-        <div slot="empty">
-          <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+
         <el-table-column type="index" :label="$t('statis.label.index')" width="80" align="center">
         </el-table-column>
         <el-table-column prop="readCount" :label="$t('statis.label.readCount')" width="120" align="center" class-name="number">
@@ -41,9 +40,9 @@
   </div>
 </template>
 <script>
-// import { getRecordsByAid } from "api/record";
+import { getSubjectsRocordBySid } from "api/record";
 import { formatTime } from "common/js/util";
-import { mapGetters } from "vuex";
+
 export default {
   name: "statis",
   data() {
@@ -53,41 +52,43 @@ export default {
       loadStatus: 1
     };
   },
-  computed: {
-    loadingText() {
-      return this.loadStatus == 1
-        ? this.$t("data.loading")
-        : this.$t("data.none");
-    },
-    ...mapGetters(["id"])
-  },
+
   created() {
-    // this._getRecordsByAid();
-    if (
-      this.$route.params &&
-      this.$route.params.data &&
-      this.$route.params.data.length > 0
-    ) {
-      this.tableData = this.$route.params.data;
-    } else {
-      this.$router.push({ name: "Statis" });
-    }
+   this.init()
+  },
+  activated() {
+    this.init()
   },
   methods: {
+    init() {
+      if (this.$route.params.subjectId) {
+        this.getData();
+      } else {
+        this.$router.push({ name: "Statis" });
+      }
+    },
     timeFormat(item) {
       if (!(item instanceof Object)) {
         return formatTime(item);
       }
       return formatTime(item.time);
+    },
+    getData() {
+      getSubjectsRocordBySid(this.$route.params.subjectId).then(res => {
+        if (res.code == 1) {
+          this.tableData = res.data;
+        } else {
+        }
+      });
     }
   },
   watch: {
-    $route(val) {
-      this.tableData =
-        val.params && val.params.data && val.params.data.length > 0
-          ? val.params.data
-          : [];
-    }
+    // $route(val) {
+    //   this.tableData =
+    //     val.params && val.params.data && val.params.data.length > 0
+    //       ? val.params.data
+    //       : [];
+    // }
   }
 };
 function sortByTime(a, b) {
@@ -95,7 +96,6 @@ function sortByTime(a, b) {
 }
 </script>
 <style lang="scss">
-
 .single-statis {
   .total-table-title {
     height: 44px;

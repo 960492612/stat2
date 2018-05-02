@@ -28,9 +28,9 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column prop="product" sortable :label="$t('statis.label.product')" width="130" align="center" v-if="!this.selectProduct" show-overflow-tooltip >
+      <el-table-column prop="product" sortable :label="$t('statis.label.product')" width="130" align="center" v-if="!this.selectProduct" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column prop="channel" sortable :label="$t('statis.label.channel')" width="150" align="center" show-overflow-tooltip >
+      <el-table-column prop="channel" sortable :label="$t('statis.label.channel')" width="150" align="center" show-overflow-tooltip>
       </el-table-column>
       <!-- 阅读量 -->
       <el-table-column prop="readCount" :label="$t('statis.label.readCount')" width="125" align="center" class-name="number" sortable>
@@ -69,7 +69,7 @@ export default {
   data() {
     return {
       totalData: [],
-      groupData: [],
+
       loadStatus: 1,
       selectAdmin: null,
       selectProduct: null,
@@ -129,8 +129,8 @@ export default {
   created() {
     if (this.role == 6) {
       this.selectAdmin = this.id;
-    }else{
-       this.selectAdmin = this.changeAdmin
+    } else {
+      this.selectAdmin = this.changeAdmin;
     }
     this.selectProduct = this.changeProduct;
     this.selectDate = this.changeDate;
@@ -141,8 +141,8 @@ export default {
   activated() {
     if (this.role == 6) {
       this.selectAdmin = this.id;
-    }else{
-       this.selectAdmin = this.changeAdmin
+    } else {
+      this.selectAdmin = this.changeAdmin;
     }
     this.selectProduct = this.changeProduct;
     this.selectDate = this.changeDate;
@@ -169,8 +169,13 @@ export default {
       });
     },
     _getRecords() {
-      
-      getRecords(this.params).then(this.getRecordsCallback);
+      getRecords({
+        params: this.params,
+        date: {
+          begin: this.selectDate ? this.selectDate[0].getTime() : null,
+          end: this.selectDate ? this.selectDate[1].getTime() : null
+        }
+      }).then(this.getRecordsCallback);
     },
     getRecordsCallback(res) {
       this.totalData = [];
@@ -179,47 +184,46 @@ export default {
           this.loadStatus = 0;
           return;
         }
-        this.totalData = this.getRecentestRecordBySid(
-          this.groupBySid(res.data)
-        );
+   
+        this.totalData = res.data;
       } else {
         this.loadStatus = 0;
       }
     },
     // 按主题分组
-    groupBySid(data) {
-      let groupBySid = {};
-      data.forEach(item => {
-        if (groupBySid[item.subjectId] == undefined) {
-          groupBySid[item.subjectId] = [item];
-        } else {
-          groupBySid[item.subjectId].push(item);
-        }
-      });
-      return groupBySid;
-    },
-    // 抽取最近一条记录
-    getRecentestRecordBySid(data) {
-      let ret = [];
-      for (let key in data) {
-        data[key].sort(sortByTime);
-        this.groupData.push(data[key]);
-        if (this.selectDate) {
-          if (
-            isInDateRange(
-              this.selectDate[0],
-              this.selectDate[1],
-              new Date(Number(data[key][0].startTime))
-            )
-          ) {
-            ret.push(data[key][0]);
-          }
-        } else {
-          ret.push(data[key][0]);
-        }
-      }
-      return ret;
-    },
+    // groupBySid(data) {
+    //   let groupBySid = {};
+    //   data.forEach(item => {
+    //     if (groupBySid[item.subjectId] == undefined) {
+    //       groupBySid[item.subjectId] = [item];
+    //     } else {
+    //       groupBySid[item.subjectId].push(item);
+    //     }
+    //   });
+    //   return groupBySid;
+    // },
+    // // 抽取最近一条记录
+    // getRecentestRecordBySid(data) {
+    //   let ret = [];
+    //   for (let key in data) {
+    //     data[key].sort(sortByTime);
+    //     this.groupData.push(data[key]);
+    //     if (this.selectDate) {
+    //       if (
+    //         isInDateRange(
+    //           this.selectDate[0],
+    //           this.selectDate[1],
+    //           new Date(Number(data[key][0].startTime))
+    //         )
+    //       ) {
+    //         ret.push(data[key][0]);
+    //       }
+    //     } else {
+    //       ret.push(data[key][0]);
+    //     }
+    //   }
+    //   return ret;
+    // },
     timeFormat(item) {
       return formatTime(item.time);
     },
@@ -231,12 +235,10 @@ export default {
       return content.length > 10 ? content.substr(0, 10) + "..." : content;
     },
     findRecordsBySid(row) {
-      let data = this.groupData.find(item => {
-        return item[0].subjectId == row.subjectId;
-      });
+
       this.$router.push({
         name: "StatisSingleList",
-        params: { data }
+        params: {subjectId: row.subjectId}
       });
     },
     // 选择管理员
@@ -266,23 +268,23 @@ export default {
       this.selectDate = dateRange;
       this._getRecords();
     },
-    filterDate() {
-      if (this.selectDate) {
-        let result = [];
-        this.totalData.forEach(item => {
-          isInDateRange(
-            this.selectDate[0],
-            this.selectDate[1],
-            new Date(Number(item.startTime))
-          ) && result.push(item);
-        });
-        this.totalData = result;
-        this.$refs.table.doLayout();
-      } else {
-        // 清除日期
-        this._getRecords();
-      }
-    },
+    // filterDate() {
+    //   if (this.selectDate) {
+    //     let result = [];
+    //     this.totalData.forEach(item => {
+    //       isInDateRange(
+    //         this.selectDate[0],
+    //         this.selectDate[1],
+    //         new Date(Number(item.startTime))
+    //       ) && result.push(item);
+    //     });
+    //     this.totalData = result;
+    //     this.$refs.table.doLayout();
+    //   } else {
+    //     // 清除日期
+    //     this._getRecords();
+    //   }
+    // },
     getSummaries(param) {
       const { columns, data } = param;
       const sums = [];

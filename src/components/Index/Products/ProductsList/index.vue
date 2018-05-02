@@ -1,7 +1,12 @@
 <template>
-  <div>
+  <div class="ProductList">
+    <div class="search" style="text-align:left;">
+      <label for="">查找产品:</label>
+      <el-input v-model="currentProduct" placeholder="输入进行快捷查找"  @keyup.native="selectProduct" clearable style="width: 200px;">
+      </el-input>
+    </div>
     <div class="content">
-      <el-table :data="tableData" style="width:770px;">
+      <el-table :data="tableData" style="width:770px;" max-height="650">
         <div slot="empty">
           <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
         <el-table-column prop="id" :label="$t('product.label.id')" width="80" align="center">
@@ -35,7 +40,9 @@ export default {
     return {
       tableData: [],
       loadStatus: 1,
-      productCates:[]
+      productCates:[],
+      currentProduct: null,
+      originData: []
     };
   },
   computed: {
@@ -64,6 +71,7 @@ export default {
             this.loadStatus = 0;
             return;
           }
+          this.originData = res.data
           this.tableData = res.data;
         } else {
           this.loadStatus = 0;
@@ -79,6 +87,16 @@ export default {
     },
     filterCategory(value, row) {
       return row.category == value;
+    },
+    selectProduct(e){
+      if(this.currentProduct==""||!this.currentProduct){
+        this.tableData = this.originData
+        return
+      }
+      // console.log(val);
+      this.tableData = this.originData.filter(item=>{
+        return  new RegExp(this.currentProduct, 'i').test(item.name)
+      })
     },
     editRow(row) {
       this.$router.push({
@@ -120,7 +138,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.content {
+.ProductList {
   margin-top: 20px;
   text-align: left;
   .second-content {

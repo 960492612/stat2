@@ -90,7 +90,13 @@ export default {
   },
   methods: {
     _getRecords() {
-      getRecords(this.params).then(this.getRecordsCallback);
+      getRecords({
+        params: this.params,
+        date: {
+          begin: this.selectDate ? this.selectDate[0].getTime() : null,
+          end: this.selectDate ? this.selectDate[1].getTime() : null
+        }
+      }).then(this.getRecordsCallback);
     },
     _getAdmins() {
       getAdmins({ role: roles["推广员"] }).then(res => {
@@ -107,47 +113,14 @@ export default {
           this.loadStatus = 0;
           return;
         }
-        this.totalData = this.getRecentestRecordBySid(
-          this.groupBySid(res.data)
-        );
+        this.totalData = res.data
+        
         this.loadChart();
       } else {
         this.loadStatus = 0;
       }
     },
-    // 按主题分组
-    groupBySid(data) {
-      let groupBySid = {};
-      data.forEach(item => {
-        if (groupBySid[item.subjectId] == undefined) {
-          groupBySid[item.subjectId] = [item];
-        } else {
-          groupBySid[item.subjectId].push(item);
-        }
-      });
-      return groupBySid;
-    },
-    getRecentestRecordBySid(data) {
-      let ret = [];
-      for (let key in data) {
-        data[key].sort(sortByTime);
-        this.groupData.push(data[key]);
-        if (this.selectDate) {
-          if (
-            isInDateRange(
-              this.selectDate[0],
-              this.selectDate[1],
-              new Date(Number(data[key][0].startTime))
-            )
-          ) {
-            ret.push(data[key][0]);
-          }
-        } else {
-          ret.push(data[key][0]);
-        }
-      }
-      return ret;
-    },
+    
     loadChart() {
       // 加载图表
       this.myChart.setOption(

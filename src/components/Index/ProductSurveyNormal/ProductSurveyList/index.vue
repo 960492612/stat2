@@ -18,7 +18,15 @@
         </el-table-column>
         <el-table-column prop="category" :label="$t('product.label.category')" width="180" align="center" :filter-method="filterCategory" :filters="categories">
         </el-table-column>
-        <el-table-column prop="desc" :label="$t('product.label.desc')" width="180" align="center">
+        <el-table-column prop="desc" label="卖点说明" width="180" align="center">
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <p v-html="scope.row.desc" style="max-width: 500px;line-height: 24px;"></p>
+              <div slot="reference" class="name-wrapper">
+                {{ shortStr(scope.row.desc)}}
+              </div>
+            </el-popover>
+          </template>
         </el-table-column>
         <el-table-column prop="publishTime" label="发布时间" width="180" align="center" :formatter="timeFormat">
         </el-table-column>
@@ -119,7 +127,9 @@ export default {
         }
       });
     },
-
+    shortStr(str) {
+      return str&&str.length > 7 ? str.substr(0, 7)+'...' : str;
+    },
     filterCategory(value, row) {
       return row.category == value;
     },
