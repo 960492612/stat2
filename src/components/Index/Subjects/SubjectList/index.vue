@@ -276,9 +276,9 @@ export default {
     },
     getRecordById(id) {
       this.readCount = 0;
-      getRecords({ subjectId: id }).then(res => {
+      getRecords({params:{ subjectId: id }}).then(res => {
         if (res.code == 1 && res.data.length > 0) {
-          res.data.sort(sortByTime);
+        
           this.readCount = res.data[0].readCount;
         }
       });

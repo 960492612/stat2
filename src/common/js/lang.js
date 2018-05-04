@@ -246,8 +246,8 @@ export const messages = {
     'zh-cn': {
         lang: '中文',
         data: {
-            loading: '加载中',
-            none: '暂无数据',
+            loading: '正在找（～￣▽￣～）',
+            none: '没东西╮(╯▽╰)╭',
             input: '请输入数据',
             int: '请输入整数',
             empty: '不能为空'

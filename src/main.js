@@ -22,7 +22,7 @@ Vue.use(ElementUI)
 Vue.config.lang = 'zh-cn'
 
 const i18n = new VueI18n({
-  locale: storage.get('language', 'en'),
+  locale: storage.get('language', 'zh-cn'),
   messages
 })
 Vue.use(ElementUI, {

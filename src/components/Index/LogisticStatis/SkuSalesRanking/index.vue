@@ -154,12 +154,7 @@ export default {
         (row[this.months[length - 1]] - row[this.months[length - 2]]) /
         row[this.months[length - 2]] *
         100;
-      // if (result > 300) {
-      //   console.log(1);
-      //   column.className = "big";
-      // }
-      // console.log(column);
-      // console.log(column);
+      
       return result.toFixed(2) + "%";
     },
     keyShow(item) {

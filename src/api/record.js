@@ -10,8 +10,15 @@ export function addRecords(data) {
 }
 
 
-export function getSubjectsRocordBySid(subjectId) {
-    return axios.get(url + 'getSubjectsRocordBySid',  {params:{subjectId}}  ).then((res) => {
+export function getSubjectsRocordBySid(sid) {
+    return axios.get(url + 'getSubjectsRocordBySid',  {params:{sid}}  ).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+
+export function getSubjectsRocordBySubjectId(subjectId) {
+    return axios.get(url + 'getSubjectsRocordBySubjectId',  {params:{subjectId}}  ).then((res) => {
         return Promise.resolve(res.data)
     })
 }

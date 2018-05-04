@@ -6,7 +6,15 @@
       item.path" :route="{path: item.path}">
         <span slot="title">{{isCn?item.cn:item.en}}</span>
       </el-menu-item> -->
-      <el-menu-item-group v-for="(group, index) in groupRouter" :key="index" v-if="groupRouter">
+      <el-submenu :index="index" v-for="(group, index) in groupRouter" :key="index" v-if="groupRouter">
+        <template slot="title">
+          <span>{{index}}</span>
+        </template>
+        <el-menu-item v-for="(item, _index) in group" :key="_index" :index="item.path" :route="{path: item.path}">
+          <span slot="title">{{isCn?item.cn:item.en}}</span>
+        </el-menu-item>
+      </el-submenu>
+      <!-- <el-menu-item-group v-for="(group, index) in groupRouter" :key="index" v-if="groupRouter">
         <template slot="title">
           <span>{{index}}</span>
         </template>
@@ -14,7 +22,7 @@
       item.path" :route="{path: item.path}">
           <span slot="title">{{isCn?item.cn:item.en}}</span>
         </el-menu-item>
-      </el-menu-item-group>
+      </el-menu-item-group> -->
     </el-menu>
   </div>
 </template>
@@ -32,7 +40,7 @@ export default {
     isCn() {
       return this.language == "zh-cn";
     },
-    
+
     ...mapGetters(["router", "language"])
   },
   mounted() {
@@ -40,15 +48,15 @@ export default {
       this.activeIndex = RegExp.$1;
     }
   },
-  created(){
-    this.groupRouter = this._getGroupRouter()
+  created() {
+    this.groupRouter = this._getGroupRouter();
   },
-  watch:{
-    router(){
-      this.groupRouter = this._getGroupRouter()
+  watch: {
+    router() {
+      this.groupRouter = this._getGroupRouter();
     }
   },
-  methods:{
+  methods: {
     _getGroupRouter() {
       // let ret = []
       let groups = {};
@@ -63,26 +71,36 @@ export default {
         }
       });
       return groups;
-    },
+    }
   }
 };
 </script>
 <style lang="scss">
 .left-sidebar {
-  .el-menu-item-group__title{
+  .el-submenu__title {
     // padding-left: 0;
     // font-size: 16px;
     // color: #a5a5a5;
     text-align: left;
     font-size: 14px;
-    span{
-      padding-left: 12px;
-      font-weight: bold;
-      color:#bdb19f;
+    // background: #409EFF;
+    // span {
+    //   // padding-left: 12px;
+    //   // font-weight: bold;
+    //   // color: #409EFF;
+    // }
+  }
+  .is-opened{
+    .el-submenu__title{
+      color: #ffd04b!important;
+      // background: rgba(0, 0, 0, 0.4)!important;
     }
   }
-  .el-menu-item{
+  .el-menu-item {
     font-size: 12px;
+  }
+  .el-submenu .el-menu-item{
+    min-width: 0;
   }
   height: 100%;
   // .header {

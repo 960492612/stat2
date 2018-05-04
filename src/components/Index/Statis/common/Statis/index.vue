@@ -12,7 +12,9 @@
     <h4 class="total-table-title">{{$t('statis.totalTitle')}}</h4>
     <el-table :data="totalData" style="width:100%;" border stripe show-summary header-cell-class-name="header-cell" ref="table" :summary-method="getSummaries" max-height="680">
       <div slot="empty">
-        <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+        <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}
+        <el-button type="primary" v-show="loadStatus == 0" @click="init">获取数据</el-button>
+      </div>
       <el-table-column type="index" :label="$t('statis.label.index')" width="60" align="center">
       </el-table-column>
       <!-- 只有产品的时候 -->
@@ -70,7 +72,7 @@ export default {
     return {
       totalData: [],
 
-      loadStatus: 1,
+      loadStatus: 0,
       selectAdmin: null,
       selectProduct: null,
       selectDate: null,
@@ -93,7 +95,7 @@ export default {
   computed: {
     loadingText() {
       return this.loadStatus == 1
-        ? this.$t("data.loading")
+        ? "正在好努力地找东西(～￣▽￣)～"
         : this.$t("data.none");
     },
     params() {
@@ -127,28 +129,10 @@ export default {
     ])
   },
   created() {
-    if (this.role == 6) {
-      this.selectAdmin = this.id;
-    } else {
-      this.selectAdmin = this.changeAdmin;
-    }
-    this.selectProduct = this.changeProduct;
-    this.selectDate = this.changeDate;
-    this.selectTopChannels = this.changeTopChannels;
-    this.selectSubChannels = this.changeSubChannels;
-    this._getRecords();
+    // this.init()
   },
   activated() {
-    if (this.role == 6) {
-      this.selectAdmin = this.id;
-    } else {
-      this.selectAdmin = this.changeAdmin;
-    }
-    this.selectProduct = this.changeProduct;
-    this.selectDate = this.changeDate;
-    this.selectTopChannels = this.changeTopChannels;
-    this.selectSubChannels = this.changeSubChannels;
-    this._getRecords();
+    this.init()
   },
   components: {
     JsonExcel
@@ -168,7 +152,20 @@ export default {
         return item;
       });
     },
+    init() {
+      if (this.role == 6) {
+        this.selectAdmin = this.id;
+      } else {
+        this.selectAdmin = this.changeAdmin;
+      }
+      this.selectProduct = this.changeProduct;
+      this.selectDate = this.changeDate;
+      this.selectTopChannels = this.changeTopChannels;
+      this.selectSubChannels = this.changeSubChannels;
+      this._getRecords();
+    },
     _getRecords() {
+      this.loadStatus = 1;
       getRecords({
         params: this.params,
         date: {
@@ -184,7 +181,7 @@ export default {
           this.loadStatus = 0;
           return;
         }
-   
+
         this.totalData = res.data;
       } else {
         this.loadStatus = 0;
@@ -235,10 +232,9 @@ export default {
       return content.length > 10 ? content.substr(0, 10) + "..." : content;
     },
     findRecordsBySid(row) {
-
       this.$router.push({
         name: "StatisSingleList",
-        params: {subjectId: row.subjectId}
+        params: { subjectId: row.subjectId }
       });
     },
     // 选择管理员

@@ -17,6 +17,15 @@
           <i>{{tableData[0].link}}</i>
         </a>
       </div>
+      <div class="info image">
+        <span>截图：</span>
+        <div  v-if="tableData[0].image">
+          <img :src="tableData[0].image" alt="">
+        </div>
+        <span v-if="!tableData[0].image">
+          未上传截图
+        </span>
+      </div>
       <div class="info channel">
         <span>{{$t('statis.label.registerTime')}}：</span>{{timeFormat(tableData[0].startTime)}}</div>
       <el-table :data="tableData" style="marginTop:10px;marginLeft:20px;" border stripe :highlight-current-row="false" header-cell-class-name="header-cell">
@@ -40,7 +49,7 @@
   </div>
 </template>
 <script>
-import { getSubjectsRocordBySid } from "api/record";
+import { getSubjectsRocordBySubjectId } from "api/record";
 import { formatTime } from "common/js/util";
 
 export default {
@@ -74,7 +83,7 @@ export default {
       return formatTime(item.time);
     },
     getData() {
-      getSubjectsRocordBySid(this.$route.params.subjectId).then(res => {
+      getSubjectsRocordBySubjectId(this.$route.params.subjectId).then(res => {
         if (res.code == 1) {
           this.tableData = res.data;
         } else {
@@ -133,6 +142,11 @@ function sortByTime(a, b) {
     }
     .link:hover {
       color: rgb(236, 48, 34);
+    }
+    .image{
+      >div{
+        padding-left: 20px;
+      }
     }
   }
 }
