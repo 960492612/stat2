@@ -28,3 +28,14 @@ export function getRecords(params) {
         return Promise.resolve(res.data)
     })
 }
+export function getRecordByMonth(params) {
+    return axios.get(url + 'getRecordByMonth', { params: params }).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function getRecordByWeek(params) {
+    return axios.get(url + 'getRecordByWeek', { params: params }).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

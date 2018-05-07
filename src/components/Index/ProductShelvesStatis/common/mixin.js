@@ -68,7 +68,7 @@ export const mixin = {
     },
     computed: {
         isShow1() {
-            return this.role == roles["最高管理员"] || this.role == roles["美工"];
+            return this.role != roles["平台管理员"] 
         },
         transformTypeText() {
             return transformTypes[this.transformType];

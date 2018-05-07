@@ -1,5 +1,14 @@
 <template>
   <div class="total-table">
+
+    <el-button type="primary" @click="isShowChart = !isShowChart">{{isShowChart?'收起统计图':'展开统计图'}}</el-button>
+    <el-radio-group v-model="totalByDate">
+      <el-radio-button label="周"></el-radio-button>
+      <el-radio-button label="月"></el-radio-button>
+    </el-radio-group>
+    <div class="chart" v-show="isShowChart">
+      <statis-by-month :totalByDate="totalByDate"/>
+    </div>
     <div class="export">
 
       <json-excel class="btn btn-default" :data="xlsData" :fields="json_fields" :name="xlsName">
@@ -10,7 +19,7 @@
       </json-excel>
     </div>
     <h4 class="total-table-title">{{$t('statis.totalTitle')}}</h4>
-    <el-table :data="totalData" style="width:100%;" border stripe show-summary header-cell-class-name="header-cell" ref="table" :summary-method="getSummaries" max-height="680">
+    <el-table :data="totalData" style="width:100%;" border stripe show-summary header-cell-class-name="header-cell" ref="table" :summary-method="getSummaries" max-height="680" :sort-change="sortChange">
       <div slot="empty">
         <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}
         <el-button type="primary" v-show="loadStatus == 0" @click="init">获取数据</el-button>
@@ -66,6 +75,7 @@ import { getRecords } from "api/record";
 import { formatTime, isInDateRange } from "common/js/util";
 import { mapGetters } from "vuex";
 import JsonExcel from "vue-json-excel";
+import StatisByMonth from "../StatisByMonth";
 export default {
   name: "common",
   data() {
@@ -89,7 +99,9 @@ export default {
         转发量: "relayCount",
         收藏量: "showCount",
         时间: "startTime"
-      }
+      },
+      isShowChart: true,
+      totalByDate: '周'
     };
   },
   computed: {
@@ -122,7 +134,7 @@ export default {
       "id",
       "changeAdmin",
       "changeDate",
-      "changeDate",
+
       "changeProduct",
       "changeSubChannels",
       "changeTopChannels"
@@ -130,12 +142,22 @@ export default {
   },
   created() {
     // this.init()
+    if (this.role == 6) {
+      this.selectAdmin = this.id;
+    } else {
+      this.selectAdmin = this.changeAdmin;
+    }
+    this.selectProduct = this.changeProduct;
+    this.selectDate = this.changeDate;
+    this.selectTopChannels = this.changeTopChannels;
+    this.selectSubChannels = this.changeSubChannels;
   },
   activated() {
-    this.init()
+    this.init();
   },
   components: {
-    JsonExcel
+    JsonExcel,
+    StatisByMonth
   },
   methods: {
     // 排序excel数据
@@ -163,6 +185,9 @@ export default {
       this.selectTopChannels = this.changeTopChannels;
       this.selectSubChannels = this.changeSubChannels;
       this._getRecords();
+    },
+    sortChange() {
+      // this._getRecords()
     },
     _getRecords() {
       this.loadStatus = 1;
@@ -338,6 +363,7 @@ function sortByTime(a, b) {
 <style lang="scss">
 .total-table {
   position: relative;
+  text-align: left;
   .export {
     position: absolute;
     right: 10px;
