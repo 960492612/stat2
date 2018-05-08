@@ -40,15 +40,17 @@
       </section>
       <section v-if="params.length>0">
         <h3>自定义参数区</h3>
-        <el-table :data="table" style="width:50%;margin: 0 auto;">
-          <el-table-column label="参数名" prop="index" width="200">
+        <el-table :data="table" style="width:80%;margin: 0 auto;" >
+          <el-table-column label="参数名" prop="index" width="400" align="center">
             <template slot-scope="scope">
-              <el-input v-model="dynamicParams[scope.row.index]['key']" placeholder=""></el-input>
+              <el-input v-model="dynamicParams[scope.row.index]['cn']['key']" placeholder="填写中文" style="width:45%;"></el-input>
+              <el-input v-model="dynamicParams[scope.row.index]['en']['key']" placeholder="填写英文" style="width:45%;"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="参数值" prop="value">
+          <el-table-column label="参数值" prop="value" align="center">
             <template slot-scope="scope">
-              <el-input v-model="dynamicParams[scope.row.index]['value']" placeholder=""></el-input>
+              <el-input v-model="dynamicParams[scope.row.index]['cn']['value']" placeholder="填写中文" style="width:45%;"></el-input>
+              <el-input v-model="dynamicParams[scope.row.index]['en']['value']" placeholder="填写英文" style="width:45%;"></el-input>
             </template>
           </el-table-column>
           <el-table-column label="操作" prop="value" width="200">
@@ -160,7 +162,10 @@ export default {
       for (let i = 0; i < this.addParamNumber; i++) {
         this.index += 1;
         this.table.push({ index: this.index, value: null });
-        this.dynamicParams[this.index] = { key: null, value: null };
+        this.dynamicParams[this.index] = {
+          cn: { key: null, value: null },
+          en: { key: null, value: null }
+        };
       }
     },
     deleteParam(row) {
@@ -180,9 +185,9 @@ export default {
       checkProduct({ product_id: this.product }).then(res => {
         if (res.code == 1) {
           this.$message.info("该产品的调查表已存在");
-          this.form = {}
-          this.table = []
-          this.params = []
+          this.form = {};
+          this.table = [];
+          this.params = [];
           return;
         } else {
           this._getParams(this.product_category);

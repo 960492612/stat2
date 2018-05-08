@@ -7,20 +7,32 @@
           <i :class="(isShowDetail?'el-icon-arrow-down':'el-icon-arrow-up')+' el-icon--right'"></i>
         </el-button>
       </div>
-      <ul v-show="isShowDetail">
-        <li v-for="(item ,index) in totalParams" :key="index" class="item">
-          <div class="key">{{item.key}}:</div>
-          <div class="value">
-            <span v-if="!item.inputType||item.inputType == 1">{{item.value}}</span>
-            <el-tag v-if="item.inputType&&item.inputType == 2" type="primary" size="medium">{{item.value}}</el-tag>
-            <div v-if="item.inputType&&item.inputType == 3">
-              <el-tag type="primary" v-for="(tag, _index) in toArray(item.value)" :key="_index" class="tag">{{tag}}</el-tag>
-            </div>
+      <div v-show="isShowDetail">
+        <ul>
+          <li v-for="(item ,index) in totalParams" :key="index" class="item">
+            <div class="key">{{item.key}}:</div>
+            <div class="value">
+              <span v-if="!item.inputType||item.inputType == 1">{{item.value}}</span>
+              <el-tag v-if="item.inputType&&item.inputType == 2" type="primary" size="medium">{{item.value}}</el-tag>
+              <div v-if="item.inputType&&item.inputType == 3">
+                <el-tag type="primary" v-for="(tag, _index) in toArray(item.value)" :key="_index" class="tag">{{tag}}</el-tag>
+              </div>
 
-            <span v-if="item.inputType&&item.inputType == 4">{{timeFormat(item.value)}}</span>
-          </div>
-        </li>
-      </ul>
+              <span v-if="item.inputType&&item.inputType == 4">{{timeFormat(item.value)}}</span>
+            </div>
+          </li>
+        </ul>
+        <ul>
+          <li v-for="(item ,index) in dynamicParams" :key="index" class="dynamic-item">
+            <div class="key">{{item.cn.key}}:</div>
+            <div class="value">{{item.cn.value}}</div>
+            <div class="key">{{item.en.key}}:</div>
+            <div class="value">{{item.en.value}}</div>
+          </li>
+        </ul>
+
+      </div>
+
     </div>
     <div class="feedback-wrapper">
       <el-form :model="feedback" status-icon label-position="right" label-width="100px" ref="form" class="form" style="width:50%;">
@@ -53,7 +65,11 @@
   </div>
 </template>
 <script>
-import { getSurveyParamsBySurveyId, saveFeedback, getPublishStores } from "api/productSurvey";
+import {
+  getSurveyParamsBySurveyId,
+  saveFeedback,
+  getPublishStores
+} from "api/productSurvey";
 import { formatTime } from "common/js/util";
 import { mapGetters } from "vuex";
 import { findStores } from "api/store";
@@ -70,6 +86,7 @@ export default {
       totalParams: [],
       isShowDetail: true,
       stores: [],
+      dynamicParams: [],
       feedback: {
         opinion: null,
         stores: [],
@@ -92,8 +109,9 @@ export default {
       this.survey = this.$route.params;
       this._getSurveyParams();
       this._findStores();
-      if(this.survey.isConfirm == 1){
-        this.init()
+      this.dynamicParams = JSON.parse(this.survey.dynamicParams);
+      if (this.survey.isConfirm == 1) {
+        this.init();
       }
     } else {
       this.$router.push({ name: "ProductSurveyList" });
@@ -106,18 +124,18 @@ export default {
   },
   methods: {
     init() {
-      this.feedback.opinion = this.survey.feedback
-      getPublishStores({publishId: this.survey.id}).then(res=>{
-        if(res.code == 1){
-          if(res.data.length>0){
-           res.data.forEach(item=>{
-              this.feedback.stores.push(item.store_id)
-              let links = JSON.parse(item.links)
-               this.$set(this.feedback.links, item.store_id, links)
-           })
+      this.feedback.opinion = this.survey.feedback;
+      getPublishStores({ publishId: this.survey.id }).then(res => {
+        if (res.code == 1) {
+          if (res.data.length > 0) {
+            res.data.forEach(item => {
+              this.feedback.stores.push(item.store_id);
+              let links = JSON.parse(item.links);
+              this.$set(this.feedback.links, item.store_id, links);
+            });
           }
         }
-      })
+      });
     },
     _findStores() {
       findStores({ platform: this.platform }).then(res => {
@@ -130,10 +148,7 @@ export default {
       getSurveyParamsBySurveyId({ surveyId: this.survey.survey_id }).then(
         res => {
           if (res.code == 1) {
-            this.totalParams = [
-              ...this.generaParams(res.data),
-              ...JSON.parse(this.survey.dynamicParams)
-            ];
+            this.totalParams = this.generaParams(res.data)          
           }
         }
       );
@@ -160,11 +175,13 @@ export default {
         }
       });
       //减去多余的店铺
-      for(let key in this.feedback.links){
-        if(!val.find(item=>{
-          return item==key
-        })){
-          this.$delete(this.feedback.links,key)
+      for (let key in this.feedback.links) {
+        if (
+          !val.find(item => {
+            return item == key;
+          })
+        ) {
+          this.$delete(this.feedback.links, key);
         }
       }
     },
@@ -255,6 +272,27 @@ export default {
       .tag {
         margin-right: 5px;
       }
+    }
+  }
+  .dynamic-item {
+    width: 100%;
+    display: flex;
+    // width: 33%;
+    height: 44px;
+    line-height: 44px;
+    font-size: 16px;
+
+    .key {
+      flex: 1;
+    }
+    .value {
+      flex: 2;
+      text-align: left;
+      border-right: 1px solid #ddd;
+      &:nth-of-type(4n) {
+        border-right: none;
+      }
+     
     }
   }
   .feedback-wrapper {
