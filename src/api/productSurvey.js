@@ -96,3 +96,9 @@ export function deleteParam(data) {
         return Promise.resolve(res.data)
     })
 }
+
+export function deleteSurveyImage(data) {
+    return axios.post(url + 'deleteSurveyImage', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

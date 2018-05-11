@@ -2,10 +2,15 @@
   <div class="ProductSurveyInfo">
     <div class="detail-wrapper">
       <div style="text-align:left;">
-        <el-button type="primary" @click="isShowDetail=!isShowDetail">
+        <el-button type="primary" size="medium" @click="isShowDetail=!isShowDetail">
           {{isShowDetail?'收起参数列表':'展开参数列表'}}
           <i :class="(isShowDetail?'el-icon-arrow-down':'el-icon-arrow-up')+' el-icon--right'"></i>
         </el-button>
+        <json-excel class="btn btn-default" :data="excelData" :fields="json_fields" :name="xlsName" v-if="excelData" style="display:inline-block;">
+          <el-button type="success" icon="el-icon-download" size="medium">
+            导出Excel
+          </el-button>
+        </json-excel>
       </div>
       <div v-show="isShowDetail">
         <ul>
@@ -25,8 +30,10 @@
         <ul>
           <li v-for="(item ,index) in dynamicParams" :key="index" class="dynamic-item">
             <div class="key">{{item.cn.key}}:</div>
+            <!-- <div class="key" v-show="!item.cn.key">无:</div> -->
             <div class="value">{{item.cn.value}}</div>
             <div class="key">{{item.en.key}}:</div>
+            <!-- <div class="key" v-show="!item.en.key">无:</div> -->
             <div class="value">{{item.en.value}}</div>
           </li>
         </ul>
@@ -73,6 +80,7 @@ import {
 import { formatTime } from "common/js/util";
 import { mapGetters } from "vuex";
 import { findStores } from "api/store";
+import JsonExcel from "vue-json-excel";
 export default {
   //   props: {
   //     survey: {
@@ -91,6 +99,10 @@ export default {
         opinion: null,
         stores: [],
         links: {}
+      },
+      json_fields: {
+        参数名: "key",
+        参数值: "value"
       }
     };
   },
@@ -101,6 +113,40 @@ export default {
           return store.id == item;
         });
       });
+    },
+    excelData() {
+      if (!this.survey) {
+        return [];
+      }
+      let one = this.totalParams.map(item => {
+        let key = item.key;
+        let value = "";
+        if (item.inputType == 3) {
+          // console.log(item.value);
+          value = item.value ? JSON.parse(item.value).join("、") : "";
+        } else if (item.inputType == 4) {
+          value = this.timeFormat(item.value);
+        } else {
+          value = item.value;
+        }
+        return { key, value };
+      });
+      let two = [];
+      this.dynamicParams.forEach(item => {
+        if (item.cn.key) {
+          two.push(item.cn);
+        }
+        if (item.en.key) {
+          two.push(item.en);
+        }
+      });
+      return [...[{ key: "卖点说明", value: this.survey.desc }], ...one, ...two];
+    },
+    xlsName() {
+      if (!this.survey) {
+        return "参数表";
+      }
+      return `${this.survey.category}${this.survey.product}产品参数表.xls`;
     },
     ...mapGetters(["platform"])
   },
@@ -114,13 +160,16 @@ export default {
         this.init();
       }
     } else {
-      this.$router.push({ name: "ProductSurveyList" });
+      this.$router.push({ name: "ProductSurveyNormalList" });
     }
   },
   watch: {
     survey() {
       this._getSurveyParams();
     }
+  },
+  components: {
+    JsonExcel
   },
   methods: {
     init() {
@@ -148,7 +197,7 @@ export default {
       getSurveyParamsBySurveyId({ surveyId: this.survey.survey_id }).then(
         res => {
           if (res.code == 1) {
-            this.totalParams = this.generaParams(res.data)          
+            this.totalParams = this.generaParams(res.data);
           }
         }
       );
@@ -292,7 +341,6 @@ export default {
       &:nth-of-type(4n) {
         border-right: none;
       }
-     
     }
   }
   .feedback-wrapper {

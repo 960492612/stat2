@@ -5,7 +5,7 @@
       <el-date-picker v-model="beginDate" type="month" placeholder="选择起始月" size="medium" :editable="false"></el-date-picker> -
       <el-date-picker v-model="endDate" type="month" placeholder="选择结束月" size="medium" :editable="false"></el-date-picker>
       <el-button type="primary" @click="searchDataByDate" size="medium">查找</el-button>
-      <!-- <el-button type="info" class="toggleEchart" size="medium" plain @click="toggleEchart">切换图表显示</el-button> -->
+      <el-button type="info" class="toggleEchart" size="medium" plain @click="toggleEchart">切换图表显示</el-button>
     </div>
     <div class="table" v-if="!isShowChart">
       <el-table :data="data" ref="table" height="750" show-summary :cell-class-name="keyShow">
@@ -20,14 +20,14 @@
 
       </el-table>
     </div>
-    <!-- <CountLogisticsChart :data="origin" v-if="isShowChart"></CountLogisticsChart> -->
+    <SkuRanking :data="top10Data" :months="months" v-if="isShowChart"></SkuRanking>
   </div>
 </template>
 <script>
 import { getSKURanking } from "api/logistics";
 import { formatTime, toDecimal } from "common/js/util";
 // // import { LogisticsKey } from "common/js/config";
-// import CountLogisticsChart from "../Echarts/countryLogisticsFee";
+import SkuRanking from "../Echarts/skuRanking";
 export default {
   data() {
     return {
@@ -47,10 +47,13 @@ export default {
       return this.loadStatus == 1
         ? this.$t("data.loading")
         : this.$t("data.none");
+    },
+    top10Data(){
+      return this.data.slice(0, 10)
     }
   },
   components: {
-    // CountLogisticsChart
+    SkuRanking
   },
   methods: {
     searchDataByDate() {

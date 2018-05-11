@@ -1,5 +1,5 @@
 <template>
-  <div class="CreateProductSurvey">
+  <div class="CreateProductSurvey" @keydown.prevent.ctrl.83="saveTable">
     <div>
       <label for="">上架产品：</label>
       <el-select v-model="product" filterable placeholder='选择相关产品' size="medium">
@@ -18,10 +18,11 @@
     <div class="content">
       <section v-if="params.length>0">
         <h3>规定参数区</h3>
-        <el-form :model="form" label-width="120px" label-position="right" style="overflow:hidden;">
+        <el-form :model="form" label-width="150px" label-position="right" style="overflow:hidden;">
           <el-form-item label="卖点说明:">
             <el-input type="textarea" v-model="desc" placeholder="输入框可通过右下角图标进行大小调整" size="medium" style="width:50%;" :rows="5"></el-input>
           </el-form-item>
+          
           <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
             <!-- 文本输入 -->
             <el-input v-model="form[item.id]" placeholder="" v-if="item.inputType==1" size="medium"></el-input>
@@ -79,6 +80,7 @@ import { getProducts } from "api/product";
 import { getParams, saveSurvey, checkProduct } from "api/productSurvey";
 // import { getPlatforms } from "api/store";
 import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -103,6 +105,7 @@ export default {
     },
     ...mapGetters(["id"])
   },
+  
   created() {
     this._getProduct();
     // this._getPlatforms();
@@ -225,7 +228,8 @@ export default {
         if (res.code == 1) {
           this.$message.success("保存成功");
           this.$router.push({
-            name: "ProductSurveyList"
+            name: "EditProductSurvey",
+            params: res.data
           });
         } else if (res.msg.name == "SequelizeUniqueConstraintError") {
           this.$message.error("请勿重复提交");
@@ -255,7 +259,7 @@ export default {
   }
   .form-item {
     float: left;
-    width: 340px;
+    width: 350px;
     .el-select {
       width: 100%;
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="CreateProductSurvey">
+  <div class="CreateProductSurvey" @keydown.prevent.ctrl.83="saveTable">
     <div>
       <span v-if="survey">当前产品：{{survey.product}}</span>
       <el-button type="success" size="medium" @click="saveTable">保存</el-button>
@@ -7,11 +7,14 @@
     <div class="content">
       <section v-if="params.length>0">
         <h3>规定参数区</h3>
-        <el-form :model="form" label-width="120px" label-position="right" style="overflow:hidden;">
+        <el-form :model="form" label-width="150px" label-position="right" style="overflow:hidden;">
           <el-form-item label="卖点说明:">
             <el-input type="textarea" v-model="desc" placeholder="输入框可通过右下角图标进行大小调整" size="medium" style="width:50%;" :rows="5"></el-input>
           </el-form-item>
-          <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
+          <el-form-item label="上传产品图片:">
+            <upload-image :surveyId="survey.id" :images="survey.survey_images" />
+          </el-form-item>
+          <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item" >
             <!-- 文本输入 -->
             <el-input v-model="form[item.id]" placeholder="" v-if="item.inputType==1" size="medium"></el-input>
             <!-- 单选 -->
@@ -72,6 +75,7 @@ import {
 } from "api/productSurvey";
 import { getPlatforms } from "api/store";
 import { mapGetters } from "vuex";
+import UploadImage from "../uploadImage";
 export default {
   data() {
     return {
@@ -95,12 +99,19 @@ export default {
       this.desc = this.survey.desc;
       this._getParams(this.survey.category_id);
     } else {
-      this.$router.go(-1);
+      this.$router.push({
+        name: "ProductSurveyList"
+        // params: res.data
+      });
+      return;
     }
 
     // this._getPlatforms();
 
     this.initDynamicParams();
+  },
+  components: {
+    UploadImage
   },
   methods: {
     initDynamicParams() {
@@ -222,9 +233,6 @@ export default {
       editSurvey({ survey, params }).then(res => {
         if (res.code == 1) {
           this.$message.success("保存成功");
-          this.$router.push({
-            name: "ProductSurveyList"
-          });
         } else if (res.msg.name == "SequelizeUniqueConstraintError") {
           this.$message.error("请勿重复提交");
         }
@@ -252,7 +260,7 @@ export default {
   }
   .form-item {
     float: left;
-    width: 320px;
+    width: 350px;
     //   min-width: 250px;
   }
 }

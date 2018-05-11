@@ -29,6 +29,13 @@
         </el-table-column>
         <el-table-column prop="time" label="创建时间" width="180" align="center" :formatter="timeFormat">
         </el-table-column>
+        <el-table-column label="图片" align="center">
+          <template slot-scope="scope">
+            <div class="mini-image-box" @click.stop="showBigImages(scope.row.survey_images)" title="点击查看大图">
+              <img :src="item.url" :alt="item.name" v-for="(item, index) in scope.row.survey_images" :key="index" class="mini-image">
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="oper" :label="$t('oper.oper')" align="center">
           <template slot-scope="scope">
 
@@ -64,6 +71,7 @@
       <el-select v-model="selectDepartment" placeholder="选择部门" size="medium" multiple>
         <el-option v-for="(item, index) in departments" :key="index" :label="item.name" :value="item.id"></el-option>
       </el-select>
+      <el-button type="primary" size="medium" @click="selectAllDepartment">全选</el-button>
       <el-button type="primary" size="medium" @click="publish()">确认发布</el-button>
     </el-dialog>
     <el-dialog title="选择目标产品进行复制" :visible.sync="isShowCopyBox">
@@ -71,6 +79,13 @@
         <el-option v-for="(item, index) in products" :key="index" :label="item.name" :value="item.id"></el-option>
       </el-select>
       <el-button type="primary" size="medium" @click="copySurvey()">确认复制</el-button>
+    </el-dialog>
+    <el-dialog title="查看大图" :visible.sync="isShowImagesBox" width="70%" top="5vh">
+      <el-carousel indicator-position="outside" height="650px">
+        <el-carousel-item v-for="(item, index) in currentImages" :key="index">
+          <img :src="item.url" :alt="item.name" style="height:100%;">
+        </el-carousel-item>
+      </el-carousel>
     </el-dialog>
   </div>
 </template>
@@ -97,6 +112,8 @@ export default {
       isShowInfo: false,
       isShowPublishBox: false,
       isShowCopyBox: false,
+      isShowImagesBox: false,
+      currentImages: [],
       departments: [],
       selectDepartment: [],
       selectProduct: null,
@@ -172,7 +189,7 @@ export default {
       return row.category == value;
     },
     shortStr(str) {
-      return str&&str.length > 7 ? str.substr(0, 7)+'...' : str;
+      return str && str.length > 7 ? str.substr(0, 7) + "..." : str;
     },
     timeFormat(item) {
       return formatTime(item.time);
@@ -240,6 +257,11 @@ export default {
     getFeedback(row) {
       this.$router.push({ name: "ProductSurveyFeedback", params: row });
     },
+    selectAllDepartment() {
+      this.selectDepartment = this.departments.map(item => {
+        return item.id;
+      });
+    },
     copySurvey(row) {
       if (!this.selectProduct) {
         this.$message.info("请选择部门");
@@ -286,6 +308,10 @@ export default {
             message: this.$t("product.delete.canceled")
           });
         });
+    },
+    showBigImages(images) {
+      this.isShowImagesBox = true;
+      this.currentImages = images
     }
   }
 };
@@ -316,6 +342,16 @@ export default {
     .checkbox-item {
       margin-bottom: 10px;
       flex: 0 0 20%;
+    }
+  }
+  .mini-image-box {
+    // display: flex;
+    cursor: pointer;
+    .mini-image {
+      // flex: 1;
+      margin-right: 3px;
+      width: 50px;
+      height: 50px;
     }
   }
 }

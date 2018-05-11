@@ -11,7 +11,7 @@
 
           </template>
         </el-table-column>
-        <el-table-column prop="id" label="调查表id" width="100" align="center">
+        <el-table-column prop="survey_id" label="调查表编号" width="100" align="center">
 
         </el-table-column>
         <el-table-column prop="product" label="产品" width="180" align="center">
@@ -32,6 +32,13 @@
         </el-table-column>
         <el-table-column prop="publisher" label="发布人" width="180" align="center">
         </el-table-column>
+        <el-table-column label="图片" align="center">
+          <template slot-scope="scope">
+            <div class="mini-image-box" @click.stop="showBigImages(scope.row.survey_images)" title="点击查看大图">
+              <img :src="item.url" :alt="item.name" v-for="(item, index) in scope.row.survey_images" :key="index" class="mini-image">
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="confirmTime" label="确认时间" width="180" align="center" :formatter="timeFormat1" >
         </el-table-column>
         <el-table-column prop="oper" :label="$t('oper.oper')" align="center">
@@ -43,7 +50,13 @@
         </el-table-column>
       </el-table>
     </div>
-   
+    <el-dialog title="查看大图" :visible.sync="isShowImagesBox" width="70%" top="5vh" >
+      <el-carousel indicator-position="outside" height="650px">
+        <el-carousel-item v-for="(item, index) in currentImages" :key="index">
+          <img :src="item.url" :alt="item.name" style="height:100%;">
+        </el-carousel-item>
+      </el-carousel>
+    </el-dialog>
 
   </div>
 </template>
@@ -52,7 +65,7 @@ import { getPublishSurveys } from "api/productSurvey";
 import { getProductCates, getProducts } from "api/product";
 import { mapActions, mapGetters } from "vuex";
 import { formatTime } from "common/js/util";
-import ProductSurveyInfo from "../ProductSurveyInfo";
+import ProductSurveyInfo from "../ProductSurveyNormalInfo";
 import { getDepartments } from "api/account";
 export default {
   data() {
@@ -61,13 +74,13 @@ export default {
       loadStatus: 1,
       productCates: [],
       currentSurvey: null,
-      isShowInfo: false,
-      isShowPublishBox: false,
-      isShowCopyBox: false,
+  
       departments: [],
       selectDepartment: [],
       selectProduct: null,
-      products: null
+      products: null,
+      isShowImagesBox: false,
+      currentImages: [],
     };
   },
   computed: {
@@ -141,11 +154,14 @@ export default {
     },
     seeDetails(row) {
       this.$router.push({
-        name: "ProductSurveyInfo",
+        name: "ProductSurveyNormalInfo",
         params: row
       });
     },
-    
+    showBigImages(images) {
+      this.isShowImagesBox = true;
+      this.currentImages = images
+    }
     
     
     
@@ -174,6 +190,16 @@ export default {
     .checkbox-item {
       margin-bottom: 10px;
       flex: 0 0 20%;
+    }
+  }
+  .mini-image-box {
+    // display: flex;
+    cursor: pointer;
+    .mini-image {
+      // flex: 1;
+      margin-right: 3px;
+      width: 50px;
+      height: 50px;
     }
   }
 }
