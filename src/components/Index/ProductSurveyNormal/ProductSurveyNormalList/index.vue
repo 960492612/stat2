@@ -32,7 +32,7 @@
         </el-table-column>
         <el-table-column prop="publisher" label="发布人" width="180" align="center">
         </el-table-column>
-        <el-table-column label="图片" align="center">
+        <el-table-column label="图片" align="center"  >
           <template slot-scope="scope">
             <div class="mini-image-box" @click.stop="showBigImages(scope.row.survey_images)" title="点击查看大图">
               <img :src="item.url" :alt="item.name" v-for="(item, index) in scope.row.survey_images" :key="index" class="mini-image">
@@ -194,6 +194,8 @@ export default {
   }
   .mini-image-box {
     // display: flex;
+    height: 50px;
+    overflow: hidden;
     cursor: pointer;
     .mini-image {
       // flex: 1;

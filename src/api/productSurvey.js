@@ -102,3 +102,15 @@ export function deleteSurveyImage(data) {
         return Promise.resolve(res.data)
     })
 }
+
+export function saveParamsSort(data) {
+    return axios.post(url + 'saveParamsSort', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function saveSurveyParamsSort(data) {
+    return axios.post(url + 'saveSurveyParamsSort', data).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

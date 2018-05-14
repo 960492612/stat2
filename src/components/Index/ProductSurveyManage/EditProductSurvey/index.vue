@@ -14,7 +14,7 @@
           <el-form-item label="上传产品图片:">
             <upload-image :surveyId="survey.id" :images="survey.survey_images" />
           </el-form-item>
-          <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item" >
+          <el-form-item :label="item.name+':'" v-for="(item, index) in params" :key="index" class="form-item">
             <!-- 文本输入 -->
             <el-input v-model="form[item.id]" placeholder="" v-if="item.inputType==1" size="medium"></el-input>
             <!-- 单选 -->
@@ -33,20 +33,21 @@
       <section v-if="params.length>0">
         <h3>自定义参数区</h3>
         <el-table :data="table" style="width:80%;margin: 0 auto;">
-          <el-table-column label="参数名" prop="index" width="400">
+          <el-table-column label="参数名"  width="400">
             <template slot-scope="scope">
               <el-input v-model="dynamicParams[scope.row.index]['cn']['key']" placeholder="填写中文" style="width:45%;"></el-input>
               <el-input v-model="dynamicParams[scope.row.index]['en']['key']" placeholder="填写英文" style="width:45%;"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="参数值" prop="value">
+          <el-table-column label="参数值" >
             <template slot-scope="scope">
               <el-input v-model="dynamicParams[scope.row.index]['cn']['value']" placeholder="填写中文" style="width:45%;"></el-input>
               <el-input v-model="dynamicParams[scope.row.index]['en']['value']" placeholder="填写英文" style="width:45%;"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label="操作" prop="value" width="200">
+          <el-table-column label="操作"  width="250">
             <template slot-scope="scope">
+              <el-button type="info" plain @click.stop="insertParam(scope.row)" size="mini">在下方插入一行</el-button>
               <el-button type="danger" plain @click="deleteParam(scope.row)" size="medium">删除</el-button>
             </template>
           </el-table-column>
@@ -116,7 +117,7 @@ export default {
   methods: {
     initDynamicParams() {
       let dynamicParams = JSON.parse(this.survey.dynamicParams);
-      let i = 0;
+      let i = 1;
       this.table = dynamicParams.map(item => {
         this.dynamicParams[i] = { ...{}, ...item };
         return {
@@ -181,6 +182,38 @@ export default {
         };
       }
     },
+    insertParam(row) {
+      this.table.splice(row.index, 0, { index: row.index + 1, value: null });
+      let index = 1;
+      let temp = {};
+  
+      // 重新建dynamicParams
+      this.table.forEach(item => {
+        item.index = index;
+        if (index < row.index + 1) {
+          temp[index] = this.dynamicParams[index];
+        } else if (index == row.index + 1) {
+          temp[index] = {
+            cn: { key: null, value: null },
+            en: { key: null, value: null }
+          };
+        } else if(index > row.index + 1){
+          temp[index] = this.dynamicParams[index - 1];
+        }
+        index++;
+      });
+      console.log(temp);
+      this.dynamicParams = temp;
+      
+      // this.$forceUpdate()
+      this.$nextTick(() => {
+        this.$set(this.dynamicParams, row.index + 1, {
+          cn: { key: '', value: '' },
+          en: { key: '', value: '' }
+        });
+        // this.dynamicParams = temp
+      });
+    },
     deleteParam(row) {
       // console.log(row);
       let deleteIndex = this.table.findIndex(item => {
@@ -189,6 +222,18 @@ export default {
 
       this.table.splice(deleteIndex, 1);
       delete this.dynamicParams[row.index];
+      let index = 1;
+      this.table.forEach(item => {
+        item.index = index;
+        index++;
+      });
+      let _index = 1;
+      let temp = {};
+      for (let key in this.dynamicParams) {
+        temp[_index] = this.dynamicParams[key];
+        _index++;
+      }
+      this.dynamicParams = temp;
     },
     // createTable() {
     //   if (!this.product) {

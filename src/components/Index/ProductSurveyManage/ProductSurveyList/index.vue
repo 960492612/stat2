@@ -36,36 +36,40 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="oper" :label="$t('oper.oper')" align="center">
+        <el-table-column prop="oper" :label="$t('oper.oper')" align="center" min-width="250" fixed="right">
           <template slot-scope="scope">
+            <div class="btn-box">
 
-            <el-button type="text" @click="showPublishBox(scope.row)" v-if="scope.row.isPublished == 0">
-              发布
-            </el-button>
-            <el-button type="text" @click="canclePublished(scope.row.id)" v-if="scope.row.isPublished == 1">
-              取消发布
-            </el-button>
-            <el-button @click.native.prevent="preview(scope.row)" type="text">
-              预览
-            </el-button>
-            <el-button @click.native.prevent="getFeedback(scope.row)" type="text" v-if="scope.row.isPublished == 1">
-              查看反馈
-            </el-button>
-            <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 0">
-              {{$t('oper.edit')}}
-            </el-button>
-            <el-button @click.native.prevent="copyRow(scope.row)" type="text">
-              复制
-            </el-button>
-            <el-button @click.native.prevent="deleteRow(scope.row, scope.$index)" type="text">
-              {{$t('oper.delete')}}
-            </el-button>
+              <el-button type="text" @click="showPublishBox(scope.row)" v-if="scope.row.isPublished == 0" class="btn1">
+                发布
+              </el-button>
+              <el-button type="text" @click="canclePublished(scope.row.id)" v-if="scope.row.isPublished == 1" class="btn1">
+                取消发布
+              </el-button>
+              <el-button @click.native.prevent="preview(scope.row)" type="text" class="btn1">
+                预览
+              </el-button>
+              <el-button @click.native.prevent="getFeedback(scope.row)" type="text" v-if="scope.row.isPublished == 1" class="btn1">
+                查看反馈
+              </el-button>
+              <el-button @click.native.prevent="editRow(scope.row)" type="text" v-if="scope.row.isPublished == 0" class="btn1">
+                {{$t('oper.edit')}}
+              </el-button>
+              <el-button @click.native.prevent="copyRow(scope.row)" type="text" class="btn1">
+                复制
+              </el-button>
+              <el-button @click.native.prevent="deleteRow(scope.row, scope.$index)" type="text"  class="btn1">
+                {{$t('oper.delete')}}
+              </el-button>
+            </div>
+
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="调查表详情" :visible.sync="isShowInfo" width="80%">
-      <product-survey-info :survey="currentSurvey" />
+    <el-dialog title="调查表详情" :visible.sync="isShowInfo" width="80%" :before-close="beforeCloseInfo">
+      <span>(拖拽可进行排序)</span>
+      <product-survey-info :survey="currentSurvey" ref="productSurveyInfo"/>
     </el-dialog>
     <el-dialog title="选择部门进行发布" :visible.sync="isShowPublishBox">
       <el-select v-model="selectDepartment" placeholder="选择部门" size="medium" multiple>
@@ -311,7 +315,21 @@ export default {
     },
     showBigImages(images) {
       this.isShowImagesBox = true;
-      this.currentImages = images
+      this.currentImages = images;
+    },
+    beforeCloseInfo(done){
+      
+      this.$refs.productSurveyInfo.saveSort().then(res=>{
+        if(res==1){
+          this.$message.success('保存成功')
+        }else{
+          this.$message.error('保存失败')
+        }
+        done()
+      }).catch(err=>{
+        // console.log(err);
+        done()
+      })
     }
   }
 };
@@ -320,6 +338,9 @@ export default {
 .el-tooltip__popper {
   max-width: 500px;
   font-size: 13px;
+}
+.el-dialog__body{
+  padding: 0 20px 30px;
 }
 .ProductSurveyList {
   margin-top: 20px;
@@ -346,6 +367,7 @@ export default {
   }
   .mini-image-box {
     // display: flex;
+    height: 50px;
     cursor: pointer;
     .mini-image {
       // flex: 1;
@@ -354,5 +376,14 @@ export default {
       height: 50px;
     }
   }
+  .btn-box {
+    display: flex;
+    width: 250px;
+    margin: 0 auto;
+    .btn1 {
+      flex: 1;
+    }
+  }
 }
+
 </style>
