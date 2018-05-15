@@ -3,7 +3,8 @@ const webpack = require('webpack');
 const AssetsPlugin = require('assets-webpack-plugin');
 module.exports = {
   entry: {
-    vendor: ['vue/dist/vue.esm.js','vue-router', 'axios', 'xlsx', 'js-cookie', 'moment']
+    vendor: ['vue/dist/vue.esm.js','vue-router', 'axios', 'js-cookie', 'moment'],
+    vendor1: ['echarts/lib/echarts','xlsx']
     // 
   },
   output: {

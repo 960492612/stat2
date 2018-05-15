@@ -206,6 +206,12 @@ export default {
       return JSON.parse(value);
     },
     generaParams(data) {
+      data.every(item => {
+        return item.sort_id != null;
+      }) &&
+        data.sort((a, b) => {
+          return a.sort_id - b.sort_id;
+        });
       return data.map(item => {
         return {
           key: item.param,

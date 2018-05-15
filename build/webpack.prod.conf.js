@@ -66,6 +66,8 @@ const webpackConfig = merge(baseWebpackConfig, {
       inject: true,
       bundleName:config.build.assetsPublicPath+utils.assetsPath('js/'+bundleConfig.vendor.js),
       favicon: './favicon.ico',
+      bundleName1:config.build.assetsPublicPath+utils.assetsPath('js/'+bundleConfig.vendor1.js),
+      favicon: './favicon.ico',
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -78,6 +80,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       chunksSortMode: 'dependency'
     }),
     // keep module.id stable when vender modules does not change
+    
     new webpack.HashedModuleIdsPlugin(),
     // enable scope hoisting
     new webpack.optimize.ModuleConcatenationPlugin(),

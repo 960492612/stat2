@@ -52,11 +52,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       inject: true,
       favicon: './favicon.ico',
       bundleName:utils.assetsPath('js/'+bundleConfig.vendor.js),
+      bundleName1:utils.assetsPath('js/'+bundleConfig.vendor1.js),
     }),
-    new webpack.DllReferencePlugin({
-      context: __dirname,
-      manifest: require('./vendor-manifest.json')
-    }),
+    // new webpack.DllReferencePlugin({
+    //   context: __dirname,
+    //   manifest: require('./vendor-manifest.json')
+    // }),
   ]
 })
 

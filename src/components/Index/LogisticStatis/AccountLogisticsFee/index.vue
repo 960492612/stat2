@@ -83,6 +83,8 @@ export default {
       getAccountLogisticsFee(beginDate, endDate).then(res => {
         if (res.code == 1) {
           if (res.data.length == 0) {
+            this.origin = []
+            this.data = []
             this.loadStatus = 0;
             return;
           }
