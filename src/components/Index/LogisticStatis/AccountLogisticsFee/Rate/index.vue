@@ -1,8 +1,8 @@
 <template>
-  <div class="accountLogisticsFee">
+    <div class="accountLogisticsFee">
 
-    <div class="echart-wrapper" ref="echart"></div>
-  </div>
+        <div class="echart-wrapper" ref="echart"></div>
+    </div>
 </template>
 <script>
 import echarts from "echarts/lib/echarts";
@@ -42,6 +42,11 @@ export default {
       this.loadChart();
     }
   },
+  activated() {
+    if (this.data && this.data.length > 0) {
+      this.loadChart();
+    }
+  },
   watch: {
     data(val) {
       if (val.length > 0) {
@@ -70,12 +75,12 @@ export default {
           orderByPlatform[item["平台"]].push(item);
         }
       });
-    
+
       this.legends = Object.keys(orderByPlatform);
       for (let i in orderByPlatform) {
         let data = orderByPlatform[i];
         let orderByMonth = {};
-  
+
         data.forEach(item => {
           if (orderByMonth[item["月份"]] == undefined) {
             orderByMonth[item["月份"]] = {
@@ -86,26 +91,28 @@ export default {
             };
           } else {
             // console.log(1);
-            orderByMonth[item["月份"]].data.push(item)
+            orderByMonth[item["月份"]].data.push(item);
             orderByMonth[item["月份"]]["total"] +=
               item["订单总金额（包含客户运费）"];
             orderByMonth[item["月份"]]["fee"] += item["物流费"];
           }
         });
         // console.log(orderByMonth);
-        this.xAxis = this.xAxis || Object.keys(orderByMonth).map(item=>{
-          return `${item.substr(0,4)}年${item.substr(4,2)}月`
-        });
+        this.xAxis =
+          this.xAxis ||
+          Object.keys(orderByMonth).map(item => {
+            return `${item.substr(0, 4)}年${item.substr(4, 2)}月`;
+          });
         let seriesData = Object.values(orderByMonth);
         let serie = {
           type: seriesData.length == 1 ? "bar" : "line",
           label: {
             normal: {
               show: true,
-              formatter: (params)=>{
-                return (params.value*100).toFixed(2) + '%'
+              formatter: params => {
+                return (params.value * 100).toFixed(2) + "%";
               },
-              position: 'top'
+              position: "top"
             }
           },
           // symbolSize: 10,
@@ -117,7 +124,7 @@ export default {
           // stack: 'tiled',
 
           data: seriesData.map(item => {
-            return Number((item.fee / item.total ).toFixed(4));
+            return Number((item.fee / item.total).toFixed(4));
           })
         };
         Series.push(serie);
@@ -140,21 +147,23 @@ export default {
               precision: 0
             }
           },
-          formatter: (params)=>{
-            let html = `<p>${params[0].name}</p>`
-            params.forEach(item=>{
-              html += `<p style="line-height:24px;"><span style="display: inline-block;width:12px;height:12px;border-radius:50%;background: ${item.color}"></span>
-              ${item.seriesName}: ${(item.value*100).toFixed(2)}%</p>`
-            })
-            
-              // console.log(params);
-              return html
+          formatter: params => {
+            let html = `<p>${params[0].name}</p>`;
+            params.forEach(item => {
+              html += `<p style="line-height:24px;"><span style="display: inline-block;width:12px;height:12px;border-radius:50%;background: ${
+                item.color
+              }"></span>
+              ${item.seriesName}: ${(item.value * 100).toFixed(2)}%</p>`;
+            });
+
+            // console.log(params);
+            return html;
           }
         },
         xAxis: {
           type: "category",
           name: "日期",
-          data: this.xAxis,
+          data: this.xAxis
           // boundaryGap: false
         },
         grid: [
@@ -162,7 +171,7 @@ export default {
             top: 100,
             width: "80%",
             // bottom: "45%",
-            left: 'center',
+            left: "center",
             containLabel: true
           }
         ],
@@ -183,17 +192,17 @@ export default {
           // minInterval: 0.01,
           maxInterval: 0.01,
           name: "物流费占比其营业额",
-            axisLabel: {
-              formatter: (value, index)=>{
-                return (value*100).toFixed(0) + '%'
-              }
-            },
+          axisLabel: {
+            formatter: (value, index) => {
+              return (value * 100).toFixed(0) + "%";
+            }
+          },
           axisPointer: {
             snap: true,
-            label:{
+            label: {
               precision: 2,
-              formatter: (params)=>{
-                return (params.value*100).toFixed(2) + '%'
+              formatter: params => {
+                return (params.value * 100).toFixed(2) + "%";
               }
             }
           }
