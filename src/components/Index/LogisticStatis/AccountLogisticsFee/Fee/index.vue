@@ -16,40 +16,58 @@ import "echarts/lib/component/dataZoom";
 import "common/js/macarons";
 import { formatTime, toDecimal } from "common/js/util";
 import { getOneLogisticsFee } from "api/logistics";
-import {mapGetters} from 'vuex'
+import { mapGetters } from "vuex";
+var yAxisIndexArr = {
+  "物流费": 0,
+  "订单平均物流费": 1,
+  "订单总金额（包含客户运费）": 0,
+  "占比": 2,
+  "订单数": 3
+};
 export default {
-  props:{
-    account:{
+  props: {
+    account: {
       type: String,
-      default: ''
+      default: ""
     }
   },
   data() {
     return {
       myChart: null,
-      legends: [],
-      xAxis: null,
-      legends: [],
-      series: [],
-      // contrys: [],
-      selectedContry: null,
-      prev: 0
+      data: null,
+   
+      legends: [
+        "物流费",
+        "订单平均物流费",
+        "订单总金额（包含客户运费）",
+        "占比",
+        "订单数"
+      ],
+ 
     };
   },
   computed: {
-    ...mapGetters('logistics', ['begin', 'end'])
+    ...mapGetters("logistics", ["begin", "end"])
   },
   mounted() {
-    
     // this.xAxis = this.setxAxis();
     // this.legends = this.setLegends();
-    this.loadChart();
+    this._getFeeByAccount();
+  },
+  activated(){
+    this._getFeeByAccount();
   },
   watch: {
-    data(val) {
-      if (val.length > 0) {
-        this.loadChart();
-      }
+    // data(val) {
+    //   if (val.length > 0) {
+    //     this.loadChart();
+    //   }
+    // },
+    begin() {
+      this._getFeeByAccount();
+    },
+    end() {
+      this._getFeeByAccount();
     }
   },
   methods: {
@@ -58,10 +76,41 @@ export default {
     //   if(byCountry[this.data['国家']])
     // },
     _getFeeByAccount() {
-      getOneLogisticsFee({})
+      if (!this.begin) {
+        // this.$message.error("请先选择日期");
+        // this.loading = 0;
+        this.data = []
+        return;
+      }
+      let beginDate = this.begin
+        ? Number(formatTime(this.begin.getTime(), "yyyyMM"))
+        : null;
+      let endDate = this.end
+        ? Number(formatTime(this.end.getTime(), "yyyyMM"))
+        : null;
+      getOneLogisticsFee({ beginDate, endDate, account: this.account }).then(
+        res => {
+          this.data = this.generaterData(res.data);
+          this.loadChart();
+        }
+      );
+    },
+    generaterData(data){
+      return data.map(item=>{
+        for(let key in item){
+          if(key == '月份'){
+            continue
+          }
+          if(!isNaN(item[key])){
+            // console.log(item[key]);
+            item[key] = toDecimal(item[key])
+          }
+        }
+        return item
+      })
     },
     loadChart() {
-      this.prev = 0;
+  
       this.myChart ||
         (this.myChart = echarts.init(this.$refs.echart, "macarons"));
       // 加载图表
@@ -74,7 +123,7 @@ export default {
         title: {
           left: "center",
           top: "20px",
-          text: "前十名sku销量变化"
+          text: `${this.account}物流数据变化图`
         },
         tooltip: {
           trigger: "axis",
@@ -95,7 +144,7 @@ export default {
             top: 100,
             width: "80%",
             // bottom: "45%",
-            left: "center",
+            left: "left",
             containLabel: true
           }
         ],
@@ -110,49 +159,98 @@ export default {
           width: 100
           //   selected: this.setLegendSelected()
         },
-        yAxis: {
-          type: "value",
-          splitLine: { show: false },
-          // minInterval: 0.01,
-          // maxInterval: 0.01,
-          name: "销量",
-          axisLabel: {},
-          axisPointer: {
-            snap: true,
-            label: {}
+        yAxis: [
+          {
+            type: "value",
+            splitLine: { show: false },
+            // minInterval: 0.01,
+            // maxInterval: 0.01,
+            name: "数量",
+            axisLabel: {},
+            axisPointer: {
+              snap: true,
+              label: {}
+            },
+            // axisLine:{
+            //   lineStyle:{
+            //     color:'#2ec7c9'
+            //   }
+            // }
+          },
+          {
+            type: "value",
+            splitLine: { show: false },
+            // minInterval: 0.01,
+            // maxInterval: 0.01,
+            offset: 160,
+            name: "平均订单物流费",
+            axisLabel: {},
+            axisPointer: {
+              snap: true,
+              label: {}
+            },
+            axisLine:{
+              lineStyle:{
+                
+                 color:'#b6a2de'
+              }
+            }
+          },
+          {
+            type: "value",
+            splitLine: { show: false },
+            minInterval: 0.01,
+            // maxInterval: 0.01,
+            offset: 80,
+            name: "物流费占比",
+            axisLabel: {},
+            axisPointer: {
+              snap: true,
+              label: {
+                precision: 2
+              }
+            },
+            axisLine:{
+              lineStyle:{
+                color:'#ffb980',
+              }
+            }
+          },
+          
+          {
+            type: "value",
+            splitLine: { show: false },
+            // minInterval: 0.01,
+            // maxInterval: 0.01,
+            name: "订单数",
+            axisLabel: {},
+            axisPointer: {
+              snap: true,
+              label: {}
+            },
+            axisLine:{
+              lineStyle:{
+                color:'#d87a80'
+              }
+            }
           }
-        },
+        ],
         dataZoom: [
-          // {
-          //   type: "slider",
-          //   show: true,
-          //   // xAxisIndex: [0],
-          //   start: 0
-          //   // end: this.xAxis.length > 10 ? 50 : 100
-          // },
+
           {
             type: "inside",
             show: true,
             // xAxisIndex: [0],
             start: 0
-            // end: this.xAxis.length > 10 ? 50 : 100
           }
         ],
         dataset: {
-          // dimensions:['产品名称'].concat(this.months),
-          source: [["产品名称"].concat(this.months)].concat(
-            this.data.map(item => {
-              return [item["产品名称"]].concat(
-                this.months.map(month => {
-                  return item[month];
-                })
-              );
-            })
-          )
+          dimensions: ["月份"].concat(this.legends),
+          source: this.data
           // sourceHeader: false
         },
-        series: this.data.map(item => {
-          return { type: "line", seriesLayoutBy: "row", label: { show: true } };
+        series: this.legends.map(item => {
+          return { type: "line", label: { show: true },yAxisIndex: yAxisIndexArr[item]};
         })
       };
     }

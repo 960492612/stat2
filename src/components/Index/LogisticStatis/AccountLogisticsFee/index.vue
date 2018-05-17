@@ -1,14 +1,16 @@
 <template>
   <div class="accountLogisticsFee">
-    <search-date @searchDataByDate="searchDataByDate" />
+    <search-date />
     <el-tabs v-model="activeTab">
       <el-tab-pane label="总表" name="first">
-        <my-table :data="data" ></my-table>
+        <my-table :data="data" v-if="activeTab == 'first'" @seeInfo="seeInfo" :loadStatus="loadStatus"></my-table>
       </el-tab-pane>
       <el-tab-pane label="总物流费占比" name="second">
         <AccountLogisticsChart :data="origin" v-if="activeTab == 'second'"></AccountLogisticsChart>
       </el-tab-pane>
-      <el-tab-pane label="单个账户物流费" name="third">单个账户物流费</el-tab-pane>
+      <el-tab-pane label="单个账户物流费" name="third">
+        <fee :account="currentAccount" v-if="activeTab == 'third'" />
+      </el-tab-pane>
 
     </el-tabs>
 
@@ -21,6 +23,7 @@ import { formatTime, toDecimal } from "common/js/util";
 import AccountLogisticsChart from "./Rate";
 import myTable from "./Table";
 import SearchDate from "../common/searchDate";
+import Fee from "./Fee";
 import { mapGetters } from "vuex";
 export default {
   data() {
@@ -29,7 +32,9 @@ export default {
       // endDate: null,
       data: null,
       origin: null,
-      activeTab: "first"
+      activeTab: "first",
+      currentAccount: "A1",
+      loadStatus: -1
       //   logisticsKey: LogisticsKey
     };
   },
@@ -44,14 +49,28 @@ export default {
   components: {
     AccountLogisticsChart,
     SearchDate,
-    myTable
+    myTable,
+    Fee
+  },
+  mounted() {
+    this.searchDataByDate();
+    // console.log(this['begin']);
+  },
+  activated() {
+    this.searchDataByDate();
+  },
+  watch: {
+    begin() {
+      this.searchDataByDate();
+    },
+    end() {
+      this.searchDataByDate();
+    }
   },
   methods: {
-    searchDataByDate() {
+    transformDate() {
       if (!this.begin) {
-        this.$message.error("请先选择日期");
-        // this.loading = 0;
-        return;
+        return false;
       }
       let beginDate = this.begin
         ? Number(formatTime(this.begin.getTime(), "yyyyMM"))
@@ -59,12 +78,21 @@ export default {
       let endDate = this.end
         ? Number(formatTime(this.end.getTime(), "yyyyMM"))
         : null;
-      this.loadStatus == 1;
+      
       if (endDate && beginDate > endDate) {
         this.$message.error("起始日期不可大于结束日期");
         // this.loading = 0;
-        return;
+        return false;
       }
+      return {beginDate, endDate}
+    },
+    searchDataByDate() {
+      let isOk = this.transformDate()
+      if(!isOk){
+        return
+      }
+      let {beginDate, endDate} = isOk
+      this.loadStatus == 1;
       getAccountLogisticsFee(beginDate, endDate).then(res => {
         if (res.code == 1) {
           if (res.data.length == 0) {
@@ -115,17 +143,18 @@ export default {
     },
 
     seeInfo(row) {
-      this.$router.push({
-        path: `/logisticStatis/accountLogisticsFee/fee/${row["账户别名"]}`
-      });
+      this.activeTab = "third";
+      this.currentAccount = row["账户别名"];
+      // this.$router.push({
+      //   path: `/logisticStatis/accountLogisticsFee/fee/${row["账户别名"]}`
+      // });
     },
     seeRateInfo() {
       this.$router.push({
         name: "Rate",
         params: { data: 1 }
       });
-    },
-    
+    }
   }
 };
 </script>

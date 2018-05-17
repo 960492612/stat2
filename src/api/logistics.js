@@ -20,7 +20,7 @@ export function getAccountLogisticsFee(beginDate, endDate) {
 }
 
 export function getOneLogisticsFee(params) {
-    return axios.get(url + 'getAccountLogisticsFee', {params} ).then((res) => {
+    return axios.get(url + 'getOneLogisticsFee', {params} ).then((res) => {
         return Promise.resolve(res.data)
     })
 }

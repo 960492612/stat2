@@ -1,69 +1,77 @@
 <template>
   <div class="contryLogisticsFee">
-    <div class="searchBox">
-      <el-tag type="primary">选择月份范围(查询单月只需选择起始月)：</el-tag>
-      <el-date-picker v-model="beginDate" type="month" placeholder="选择起始月" size="medium" :editable="false"></el-date-picker> -
-      <el-date-picker v-model="endDate" type="month" placeholder="选择结束月" size="medium" :editable="false"></el-date-picker>
-      <el-button type="primary" @click="searchDataByDate" size="medium">查找</el-button>
-      <el-button type="info" class="toggleEchart" size="medium" plain @click="toggleEchart">切换图表显示</el-button>
-    </div>
-    <div class="table" v-if="!isShowChart">
-      <el-table :data="data" @row-click="rowClick" ref="table" height="750" show-summary :summary-method="getSummaries">
-        <div slot="empty">
-          <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
 
-        <el-table-column label="国家" prop="国家" width="200" class-name="column"></el-table-column>
-        <el-table-column label="营业额" prop="营业额" width="220" class-name="column" :formatter="keetInt"></el-table-column>
-        <el-table-column label="总物流费" prop="物流费" width="230" :formatter="toDecimal1" class-name="column"></el-table-column>
-        <el-table-column label="物流费占比营业额" prop="物流费占比营业额" width="230" :formatter="toPercentByCountry" class-name="column"></el-table-column>
-        <el-table-column label="发货包裹数" prop="发货包裹数" width="230" :formatter="keetInt" class-name="column"></el-table-column>
+    <search-date />
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="总表" name="first">
+        <my-table :data="data" v-if="activeTab == 'first'" @seeInfo="seeInfo" :loadStatus="loadStatus"></my-table>
+      </el-tab-pane>
+      <el-tab-pane label="国家物流费变化图" name="second">
+        <CountLogisticsChart :data="origin" v-if="activeTab == 'second'"></CountLogisticsChart>
 
-        <el-table-column label="包裹单价" prop="包裹单价" :formatter="getTotalAvgFee" class-name="column"></el-table-column>
-      </el-table>
-    </div>
-    <CountLogisticsChart :data="origin" v-if="isShowChart"></CountLogisticsChart>
+      </el-tab-pane>
+      <!-- <el-tab-pane label="单个账户物流费" name="third">
+        <fee :account="currentAccount" v-if="activeTab == 'third'"/>
+      </el-tab-pane> -->
+
+    </el-tabs>
   </div>
 </template>
 <script>
 import { getCountryLogisticsFee } from "api/logistics";
-import { formatTime, toDecimal } from "common/js/util";
 // import { LogisticsKey } from "common/js/config";
-import CountLogisticsChart from "../Echarts/countryLogisticsFee";
+import { formatTime } from "common/js/util";
+import CountLogisticsChart from "./Fee";
+import MyTable from "./Table";
+import SearchDate from "../common/searchDate";
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
-      beginDate: null,
-      endDate: null,
+     
       data: null,
       origin: null,
-      loadStatus: -1,
-      isShowChart: false
+      activeTab: "first",
+      loadStatus: -1
       //   logisticsKey: LogisticsKey
     };
   },
   computed: {
-    loadingText() {
-      return this.loadStatus == 1
-        ? this.$t("data.loading")
-        : this.$t("data.none");
-    }
+    
+    ...mapGetters("logistics", ["begin", "end"])
   },
   components: {
-    CountLogisticsChart
+    CountLogisticsChart,
+    MyTable,
+    SearchDate
+  },
+  mounted(){
+     this.searchDataByDate();
+    // console.log(this['begin']);
+  },
+  activated(){
+     this.searchDataByDate();
+  },
+  watch:{
+    begin() {
+      this.searchDataByDate();
+    },
+    end() {
+      this.searchDataByDate();
+    }
   },
   methods: {
-    
     searchDataByDate() {
-      if (!this.beginDate) {
-        this.$message.error("请先选择日期");
+      if (!this.begin) {
+        // this.$message.error("请先选择日期");
         // this.loading = 0;
         return;
       }
-      let beginDate = this.beginDate
-        ? Number(formatTime(this.beginDate.getTime(), "yyyyMM"))
+      let beginDate = this.begin
+        ? Number(formatTime(this.begin.getTime(), "yyyyMM"))
         : null;
-      let endDate = this.endDate
-        ? Number(formatTime(this.endDate.getTime(), "yyyyMM"))
+      let endDate = this.end
+        ? Number(formatTime(this.end.getTime(), "yyyyMM"))
         : null;
       this.loadStatus = 1;
       if (endDate && beginDate > endDate) {
@@ -102,68 +110,7 @@ export default {
       });
       return Object.values(ret);
     },
-    rowClick(row) {
-      // this.$refs.table.toggleRowExpansion(row);
-    },
-    toWord() {
-      return "";
-    },
-    keetInt(row, column, vlaue) {
-      return Math.round(vlaue);
-    },
-    toDecimal1(row, column,value) {
-      return toDecimal(value);
-    },
-    toPercentByAccount(row, column, value) {
-      return toDecimal(value * 100) + "%";
-    },
-    toPercentByCountry(row, column) {
-      return toDecimal(row["物流费"] / row["营业额"] * 100) + "%";
-    },
-    getTotalAvgFee(row) {
-      return toDecimal(row["物流费"] / row["发货包裹数"]);
-    },
-    toggleEchart() {
-      if (!this.beginDate) {
-        this.$message.info("请先选择时间");
-        return;
-      }
-      this.isShowChart = !this.isShowChart;
-    },
-    getSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = "总计";
-          return;
-        }
-        if (column.property == "国家" || column.property == "物流费占比营业额" || column.property == "包裹单价" ) {
-          return;
-        }
-        const values = data.map(item => {
-          return Number(item[column.property]);
-        });
-        if (!values.every(value => isNaN(value))) {
-          sums[index] = values.reduce((prev, curr) => {
-            const value = Number(curr);
-            if (!isNaN(value)) {
-              return prev + curr;
-            } else {
-              return prev;
-            }
-          }, 0);
-          // sums[index] += " 次";
-        } else {
-          // sums[index] = "";
-        }
-      });
-      sums[3] = (sums[2] / sums[1]).toFixed(3) * 100 + '%'
-      sums[5] = toDecimal(sums[2] / sums[4])
-      sums[1] = Math.round(sums[1])
-      sums[2] = toDecimal(sums[2])
-      return sums;
-    }
+    seeInfo(){}
   }
 };
 </script>
@@ -174,7 +121,7 @@ export default {
   .searchBox {
     text-align: left;
   }
-  .table{
+  .table {
     margin-left: 20px;
   }
   .el-table__expanded-cell[class*="cell"] {

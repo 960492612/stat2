@@ -39,11 +39,15 @@ export default {
     data: {
       type: Array,
       default: () => []
+    },
+    loadStatus:{
+      type: Number,
+      default: -1
     }
   },
   data(){
       return {
-           loadStatus: -1,
+           
       }
   },
   computed: {
@@ -76,7 +80,9 @@ export default {
     getTotalAvgFee(row) {
       return Math.round(row["物流费"] / row["订单数"]);
     },
-    seeInfo(){}
+    seeInfo(row){
+      this.$emit('seeInfo', row)
+    }
   }
 };
 </script>
