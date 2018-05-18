@@ -56,7 +56,6 @@ export default {
         ? this.$t("data.loading")
         : this.$t("data.none");
     }
-    // ...mapGetters("logistics", ["begin", "end"])
   },
 
   methods: {

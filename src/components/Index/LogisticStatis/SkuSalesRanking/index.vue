@@ -1,79 +1,52 @@
 <template>
   <div class="SkuSalesRanking">
-    <div class="searchBox">
-      <el-tag type="primary">选择月份范围(查询单月只需选择起始月)：</el-tag>
-      <el-date-picker v-model="beginDate" type="month" placeholder="选择起始月" size="medium" :editable="false"></el-date-picker> -
-      <el-date-picker v-model="endDate" type="month" placeholder="选择结束月" size="medium" :editable="false"></el-date-picker>
-      <el-button type="primary" @click="searchDataByDate" size="medium">查找</el-button>
-      <el-button type="info" class="toggleEchart" size="medium" plain @click="toggleEchart">切换图表显示</el-button>
-    </div>
-    <div class="table" v-if="!isShowChart">
-      <el-table :data="data" ref="table" height="750" show-summary :cell-class-name="keyShow">
-        <div slot="empty">
-          <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+    <search-date />
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="总表" name="first">
+        <my-table :data="data" v-if="activeTab == 'first'" :loadStatus="loadStatus" :months="months" :type="type"></my-table>
+      </el-tab-pane>
+      <el-tab-pane label="前十名sku数据变化图" name="second">
+        <SkuRanking :data="top10Data" :months="months" v-if="activeTab == 'second'"></SkuRanking>
+      </el-tab-pane>
 
-        <el-table-column label="SKU" prop="产品代码" width="200" class-name="column"></el-table-column>
-        <el-table-column label="产品名称" prop="产品名称" width="350" class-name="column"></el-table-column>
-        <el-table-column label="品类" prop="品类" width="200" class-name="column" :filters="type" filter-placement="bottom-end" :filter-method="filterHandler"></el-table-column>
-        <el-table-column :label="item" :prop="item" width="220" class-name="column" v-for="(item, index) in months" :key="index" align="center"></el-table-column>
-        <el-table-column label="环比" width="230" :formatter="getHuanBi" class-name="column" align="center"></el-table-column>
+    </el-tabs>
 
-      </el-table>
-    </div>
-    <SkuRanking :data="top10Data" :months="months" v-if="isShowChart"></SkuRanking>
   </div>
 </template>
 <script>
 import { getSKURanking } from "api/logistics";
-import { formatTime, toDecimal } from "common/js/util";
-// // import { LogisticsKey } from "common/js/config";
-import SkuRanking from "../Echarts/skuRanking";
+import { formatTime } from "common/js/util";
+import SkuRanking from "./TopSkuStatis";
+import MyTable from "./Table";
+import SearchDate from "../common/searchDate";
+import { logisticsMixin } from "../common/mixin";
 export default {
+  mixins: [logisticsMixin],
   data() {
     return {
-      beginDate: null,
-      endDate: null,
-      data: null,
-      origin: null,
-      loadStatus: -1,
-      isShowChart: false,
       type: [],
       months: []
       //   logisticsKey: LogisticsKey
     };
   },
   computed: {
-    loadingText() {
-      return this.loadStatus == 1
-        ? this.$t("data.loading")
-        : this.$t("data.none");
-    },
-    top10Data(){
-      return this.data.slice(0, 10)
+    top10Data() {
+      return this.data.slice(0, 10);
     }
   },
   components: {
-    SkuRanking
+    SkuRanking,
+    SearchDate,
+    MyTable
   },
   methods: {
     searchDataByDate() {
-      if (!this.beginDate) {
-        this.$message.error("请先选择日期");
-        // this.loading = 0;
+      let isOk = this.transformDate();
+      if (!isOk) {
         return;
       }
-      let beginDate = this.beginDate
-        ? Number(formatTime(this.beginDate.getTime(), "yyyyMM"))
-        : null;
-      let endDate = this.endDate
-        ? Number(formatTime(this.endDate.getTime(), "yyyyMM"))
-        : null;
-      this.loadStatus = 1;
-      if (endDate && beginDate > endDate) {
-        this.$message.error("起始日期不可大于结束日期");
-        // this.loading = 0;
-        return;
-      }
+      let { beginDate, endDate } = isOk;
+      this.loadStatus == 1;
       // 动态创建月份字段
       this.selectedMonths();
       getSKURanking(beginDate, endDate).then(res => {
@@ -120,15 +93,15 @@ export default {
     },
     selectedMonths() {
       // 一个月的
-      if (!this.endDate) {
-        this.months = [formatTime(this.beginDate.getTime(), "yyyyMM")];
+      if (!this.end) {
+        this.months = [formatTime(this.begin.getTime(), "yyyyMM")];
         return;
       }
       // 时间段的
-      let beginY = this.beginDate.getFullYear();
-      let endY = this.endDate.getFullYear();
-      let endM = this.endDate.getMonth() + 1;
-      let beginM = this.beginDate.getMonth() + 1;
+      let beginY = this.begin.getFullYear();
+      let endY = this.end.getFullYear();
+      let endM = this.end.getMonth() + 1;
+      let beginM = this.begin.getMonth() + 1;
       let monthCount =
         endY == beginY
           ? endM - beginM + 1
@@ -147,47 +120,6 @@ export default {
       }
       // console.log(months);
       this.months = months;
-    },
-    getHuanBi(row, column, value) {
-      let length = this.months.length;
-      if (length <= 1) {
-        return "";
-      }
-      let result =
-        (row[this.months[length - 1]] - row[this.months[length - 2]]) /
-        row[this.months[length - 2]] *
-        100;
-      
-      return result.toFixed(2) + "%";
-    },
-    keyShow(item) {
-      if (item.columnIndex != Object.keys(item.row).length - 3) return "";
-      let length = this.months.length;
-      if (length <= 1) {
-        return "";
-      }
-      let result =
-        (item.row[this.months[length - 1] + ""] -
-          item.row[this.months[length - 2] + ""]) /
-        item.row[this.months[length - 2] + ""] *
-        100;
-      if (result >= 10) {
-        return "keyShow";
-      } else {
-        return "";
-      }
-    },
-    toggleEchart() {
-      if (!this.beginDate) {
-        this.$message.info("请先选择时间");
-        return;
-      }
-      this.isShowChart = !this.isShowChart;
-    },
-    filterHandler(value, row, column) {
-      const property = column["property"];
-      // console.log(value);
-      return row[property] == value;
     }
   }
 };

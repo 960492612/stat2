@@ -1,16 +1,16 @@
 <template>
-  <div class="countryLogisticsFee">
-    <div class="selectCountry">
-      <el-tag type="primary">查看国家：</el-tag>
-      <el-select v-model="selectedContry" placeholder="选择国家" filterable @change="loadChart" size="medium">
-        <el-option v-for="(contry, index) in contrys" :key="index" :value="contry" :label="contry"></el-option>
-      </el-select>
+    <div class="accountLogisticsFee">
+
+        <div class="echart-wrapper" ref="echart"></div>
+        <div class="sum">
+            全平台的海外仓发货占比：
+            <el-tag type="primary">{{(haiwai/total*100).toFixed(2)+'%'}}</el-tag>
+        </div>
     </div>
-    <div class="echart-wrapper" ref="echart"></div>
-  </div>
 </template>
 <script>
 import echarts from "echarts/lib/echarts";
+import "echarts/lib/chart/line";
 import "echarts/lib/chart/bar";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
@@ -36,40 +36,20 @@ export default {
       xAxis: null,
       legends: [],
       series: [],
-      contrys: [],
-      selectedContry: null,
-      prev: 0
+      total: 0,
+      haiwai: 0
     };
-  },
-  computed: {
-    dataInContry() {
-      if (!this.selectedContry) {
-        return [];
-      }
-      let ret = [];
-      this.data.forEach(item => {
-        if (item["国家"] == this.selectedContry) {
-          ret.push(item);
-        }
-      });
-      ret.sort((a, b) => {
-        return a["月份"] - b["月份"];
-      });
-      return ret;
-    }
   },
   mounted() {
     // this.xAxis = this.setxAxis();
     // this.legends = this.setLegends();
 
     if (this.data && this.data.length > 0) {
-      let byContry = {};
-      this.data.forEach(item => {
-        if (byContry[item["国家"]] == undefined) {
-          byContry[item["国家"]] = 1;
-        }
-      });
-      this.contrys = Object.keys(byContry);
+      this.loadChart();
+    }
+  },
+  activated(){
+    if (this.data && this.data.length > 0) {
       this.loadChart();
     }
   },
@@ -81,12 +61,7 @@ export default {
     }
   },
   methods: {
-    // getCountrys(){
-    //   let byCountry = {}
-    //   if(byCountry[this.data['国家']])
-    // },
     loadChart() {
-      this.prev = 0
       this.myChart ||
         (this.myChart = echarts.init(this.$refs.echart, "macarons"));
       // 加载图表
@@ -95,49 +70,81 @@ export default {
     },
     setSeries() {
       let serie = {};
+      let orderByPlatform = {};
       let Series = [];
-      this.xAxis = this.dataInContry.map(item => {
-        // console.log(item["月份"]);
-        return `${(item["月份"] + "").substr(0, 4)}年${(
-          item["月份"] + ""
-        ).substr(4, 2)}月`;
+      this.xAxis = null;
+      // 排出系列数据
+      this.data.forEach(item => {
+        if (orderByPlatform[item["平台"]] == undefined) {
+          orderByPlatform[item["平台"]] = [item];
+        } else {
+          orderByPlatform[item["平台"]].push(item);
+        }
       });
 
-      serie = {
-        type: "bar",
-        label: {
-          normal: {
-            show: true,
-            formatter: params => {
-              let append = ''
-              if(this.prev != 0){
-                let delta = params.value - this.prev
-                if(delta>0){
-                  append = `  变化:增长${(delta*100).toFixed(2)}%`
-                }else{
-                  append = `  变化:减少${(delta*100).toFixed(2)}%`
-                }
-              }
-              this.prev = params.value
-              // console.log(params);
-              return (params.value * 100).toFixed(2) + "%" +
-              append;
-            },
-            position: "top"
-          }
-        },
-        // symbolSize: 10,
-        legendHoverLink: true,
-        smooth: true,
-        // name: this,
-        // stack: 'tiled',
-        barMaxWidth: 50,
-        data: this.dataInContry.map(item => {
-          return Number((item["物流费"] / item["营业额"]).toFixed(4));
-        })
-      };
-      Series.push(serie);
+      this.legends = Object.keys(orderByPlatform);
+      for (let i in orderByPlatform) {
+        let data = orderByPlatform[i];
+        let orderByMonth = {};
 
+        data.forEach(item => {
+          if (orderByMonth[item["月份"]] == undefined) {
+            orderByMonth[item["月份"]] = {
+              // platform: item["平台"],
+              total: Number(item["出货量"]),
+              haiwai:
+                item["发运仓库"] != "SZ01 [深圳坂田仓]"
+                  ? Number(item["出货量"])
+                  : 0
+            };
+          } else {
+            // console.log(1);
+            // orderByMonth[item["月份"]].data.push(item);
+            orderByMonth[item["月份"]]["total"] += Number(item["出货量"]);
+            orderByMonth[item["月份"]]["haiwai"] +=
+              item["发运仓库"] != "SZ01 [深圳坂田仓]"
+                ? Number(item["出货量"])
+                : 0;
+          }
+        });
+        // console.log(orderByMonth);
+        this.xAxis =
+          this.xAxis ||
+          Object.keys(orderByMonth).map(item => {
+            return `${item.substr(0, 4)}年${item.substr(4, 2)}月`;
+          });
+       
+        let seriesData = Object.values(orderByMonth);
+        // 计算总数的占比
+        seriesData.forEach(item => {
+          this.total += item.total;
+          this.haiwai += item.haiwai;
+        });
+        let serie = {
+          type: seriesData.length == 1 ? "bar" : "line",
+          label: {
+            normal: {
+              show: true,
+              formatter: params => {
+                return (params.value * 100).toFixed(2) + "%";
+              },
+              position: "top"
+            }
+          },
+          // symbolSize: 10,
+          legendHoverLink: true,
+          // showSymbol: true,
+          // stack: "访问数",
+          smooth: true,
+          name: i,
+          // stack: 'tiled',
+          barMaxWidth: 50,
+          data: seriesData.map(item => {
+            return Number((item.haiwai / item.total).toFixed(4));
+          })
+        };
+        Series.push(serie);
+      }
       return Series;
     },
     setChartOptions() {
@@ -145,7 +152,7 @@ export default {
         title: {
           left: "center",
           top: "20px",
-          text: (this.selectedContry?this.selectedContry:'某国') + "物流费占比其营业额的变化折线图"
+          text: "各平台海外仓发货占比折线图"
         },
         tooltip: {
           trigger: "axis",
@@ -162,8 +169,7 @@ export default {
               html += `<p style="line-height:24px;"><span style="display: inline-block;width:12px;height:12px;border-radius:50%;background: ${
                 item.color
               }"></span>
-              ${(item.value * 100).toFixed(2)}%</p>`;
-              // console.log(this.prev);
+              ${item.seriesName}: ${(item.value * 100).toFixed(2)}%</p>`;
             });
 
             // console.log(params);
@@ -185,23 +191,23 @@ export default {
             containLabel: true
           }
         ],
-        // legend: {
-        //   type: "scroll",
-        //   data: this.legends,
-        //   orient: "vertical",
-        //   right: 10,
-        //   top: 20,
-        //   bottom: 20,
-        //   icon: "stack",
-        //   width: 100
-        //   //   selected: this.setLegendSelected()
-        // },
+        legend: {
+          type: "scroll",
+          data: this.legends,
+          orient: "vertical",
+          right: 10,
+          top: 20,
+          bottom: 20,
+          icon: "stack",
+          width: 100
+          //   selected: this.setLegendSelected()
+        },
         yAxis: {
           type: "value",
           splitLine: { show: false },
           // minInterval: 0.01,
-          // maxInterval: 0.01,
-          name: "物流费占比其营业额",
+          //   maxInterval: 0.01,
+          name: "海外仓占比",
           axisLabel: {
             formatter: (value, index) => {
               return (value * 100).toFixed(0) + "%";
@@ -242,11 +248,5 @@ export default {
 <style lang="scss" scoped>
 .echart-wrapper {
   height: 750px;
-}
-.countryLogisticsFee {
-  .selectCountry {
-    margin-top: 20px;
-    text-align: center;
-  }
 }
 </style>

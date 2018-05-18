@@ -18,34 +18,23 @@
 </template>
 <script>
 import { getAccountLogisticsFee } from "api/logistics";
-import { formatTime, toDecimal } from "common/js/util";
-// import { LogisticsKey } from "common/js/config";
 import AccountLogisticsChart from "./Rate";
 import myTable from "./Table";
 import SearchDate from "../common/searchDate";
 import Fee from "./Fee";
-import { mapGetters } from "vuex";
+import { logisticsMixin } from "../common/mixin";
 export default {
+  mixins:[logisticsMixin],
   data() {
     return {
-      // beginDate: null,
-      // endDate: null,
-      data: null,
-      origin: null,
-      activeTab: "first",
-      currentAccount: "A1",
-      loadStatus: -1
-      //   logisticsKey: LogisticsKey
+      // data: null,
+      // origin: null,
+      // activeTab: "first",
+      currentAccount: "A1"
+      // loadStatus: -1
     };
   },
-  computed: {
-    loadingText() {
-      return this.loadStatus == 1
-        ? this.$t("data.loading")
-        : this.$t("data.none");
-    },
-    ...mapGetters("logistics", ["begin", "end"])
-  },
+
   components: {
     AccountLogisticsChart,
     SearchDate,
@@ -56,42 +45,14 @@ export default {
     this.searchDataByDate();
     // console.log(this['begin']);
   },
-  activated() {
-    this.searchDataByDate();
-  },
-  watch: {
-    begin() {
-      this.searchDataByDate();
-    },
-    end() {
-      this.searchDataByDate();
-    }
-  },
+
   methods: {
-    transformDate() {
-      if (!this.begin) {
-        return false;
-      }
-      let beginDate = this.begin
-        ? Number(formatTime(this.begin.getTime(), "yyyyMM"))
-        : null;
-      let endDate = this.end
-        ? Number(formatTime(this.end.getTime(), "yyyyMM"))
-        : null;
-      
-      if (endDate && beginDate > endDate) {
-        this.$message.error("起始日期不可大于结束日期");
-        // this.loading = 0;
-        return false;
-      }
-      return {beginDate, endDate}
-    },
     searchDataByDate() {
-      let isOk = this.transformDate()
-      if(!isOk){
-        return
+      let isOk = this.transformDate();
+      if (!isOk) {
+        return;
       }
-      let {beginDate, endDate} = isOk
+      let { beginDate, endDate } = isOk;
       this.loadStatus == 1;
       getAccountLogisticsFee(beginDate, endDate).then(res => {
         if (res.code == 1) {
@@ -145,15 +106,6 @@ export default {
     seeInfo(row) {
       this.activeTab = "third";
       this.currentAccount = row["账户别名"];
-      // this.$router.push({
-      //   path: `/logisticStatis/accountLogisticsFee/fee/${row["账户别名"]}`
-      // });
-    },
-    seeRateInfo() {
-      this.$router.push({
-        name: "Rate",
-        params: { data: 1 }
-      });
     }
   }
 };

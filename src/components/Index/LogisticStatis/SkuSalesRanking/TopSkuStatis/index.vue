@@ -1,8 +1,8 @@
 <template>
-  <div class="countryLogisticsFee">
-    
-    <div class="echart-wrapper" ref="echart"></div>
-  </div>
+    <div class="countryLogisticsFee">
+
+        <div class="echart-wrapper" ref="echart"></div>
+    </div>
 </template>
 <script>
 import echarts from "echarts/lib/echarts";
@@ -42,14 +42,18 @@ export default {
       prev: 0
     };
   },
-  computed: {
-
-  },
+  computed: {},
   mounted() {
     // this.xAxis = this.setxAxis();
     // this.legends = this.setLegends();
-  this.loadChart();
-   
+    if (this.data && this.data.length > 0) {
+      this.loadChart();
+    }
+  },
+  activated() {
+    if (this.data && this.data.length > 0) {
+      this.loadChart();
+    }
   },
   watch: {
     data(val) {
@@ -64,7 +68,6 @@ export default {
     //   if(byCountry[this.data['国家']])
     // },
     loadChart() {
-      this.prev = 0;
       this.myChart ||
         (this.myChart = echarts.init(this.$refs.echart, "macarons"));
       // 加载图表
@@ -144,18 +147,18 @@ export default {
         dataset: {
           // dimensions:['产品名称'].concat(this.months),
           source: [["产品名称"].concat(this.months)].concat(
-              this.data.map(item => {
-                return [item["产品名称"]].concat(
-                  this.months.map(month => {
-                    return item[month];
-                  })
-                );
-              })
-            ),
+            this.data.map(item => {
+              return [item["产品名称"]].concat(
+                this.months.map(month => {
+                  return item[month];
+                })
+              );
+            })
+          )
           // sourceHeader: false
         },
         series: this.data.map(item => {
-          return { type: "line", seriesLayoutBy: "row", label: {show:true} };
+          return { type: "line", seriesLayoutBy: "row", label: { show: true } };
         })
       };
     }

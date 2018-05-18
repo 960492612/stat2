@@ -20,65 +20,36 @@
 <script>
 import { getCountryLogisticsFee } from "api/logistics";
 // import { LogisticsKey } from "common/js/config";
-import { formatTime } from "common/js/util";
+// import { formatTime } from "common/js/util";
 import CountLogisticsChart from "./Fee";
 import MyTable from "./Table";
 import SearchDate from "../common/searchDate";
-import { mapGetters } from "vuex";
+// import { mapGetters } from "vuex";
+import { logisticsMixin } from "../common/mixin.js";
 export default {
+  mixins: [logisticsMixin],
   data() {
     return {
-     
-      data: null,
-      origin: null,
-      activeTab: "first",
-      loadStatus: -1
+      activeTab: "first"
+
       //   logisticsKey: LogisticsKey
     };
   },
-  computed: {
-    
-    ...mapGetters("logistics", ["begin", "end"])
-  },
+
   components: {
     CountLogisticsChart,
     MyTable,
     SearchDate
   },
-  mounted(){
-     this.searchDataByDate();
-    // console.log(this['begin']);
-  },
-  activated(){
-     this.searchDataByDate();
-  },
-  watch:{
-    begin() {
-      this.searchDataByDate();
-    },
-    end() {
-      this.searchDataByDate();
-    }
-  },
+
   methods: {
     searchDataByDate() {
-      if (!this.begin) {
-        // this.$message.error("请先选择日期");
-        // this.loading = 0;
+      let isOk = this.transformDate();
+      if (!isOk) {
         return;
       }
-      let beginDate = this.begin
-        ? Number(formatTime(this.begin.getTime(), "yyyyMM"))
-        : null;
-      let endDate = this.end
-        ? Number(formatTime(this.end.getTime(), "yyyyMM"))
-        : null;
-      this.loadStatus = 1;
-      if (endDate && beginDate > endDate) {
-        this.$message.error("起始日期不可大于结束日期");
-        // this.loading = 0;
-        return;
-      }
+      let { beginDate, endDate } = isOk;
+      this.loadStatus == 1;
       getCountryLogisticsFee(beginDate, endDate).then(res => {
         if (res.code == 1) {
           if (res.data.length == 0) {
@@ -110,7 +81,7 @@ export default {
       });
       return Object.values(ret);
     },
-    seeInfo(){}
+    seeInfo() {}
   }
 };
 </script>
