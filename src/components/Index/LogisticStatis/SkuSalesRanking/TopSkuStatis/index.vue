@@ -33,13 +33,7 @@ export default {
   data() {
     return {
       myChart: null,
-      legends: [],
-      xAxis: null,
-      legends: [],
-      series: [],
-      // contrys: [],
       selectedContry: null,
-      prev: 0
     };
   },
   computed: {},

@@ -55,6 +55,12 @@ export function getSKURanking(beginDate, endDate) {
     })
 }
 
+export function getSkuInfoByAccount(params) {
+    return axios.get(url + 'getSkuInfoByAccount', {params}).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
 export function deleteLogisticOrder(data) {
     return axios.post(url + 'deleteLogisticOrder', data ).then((res) => {
         return Promise.resolve(res.data)
@@ -63,6 +69,18 @@ export function deleteLogisticOrder(data) {
 
 export function deleteLogisticProduct(data) {
     return axios.post(url + 'deleteLogisticProduct', data ).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function findSkus(word) {
+    return axios.get(url + 'findSkus', {params:{word}} ).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+// sku组合发货情况
+export function getSkuGroupInfo(params) {
+    return axios.get(url + 'getSkuGroupInfo', {params}).then((res) => {
         return Promise.resolve(res.data)
     })
 }

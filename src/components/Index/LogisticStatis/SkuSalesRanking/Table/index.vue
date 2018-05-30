@@ -1,17 +1,24 @@
 <template>
-    <div class="table">
-        <el-table :data="data" ref="table" height="750" show-summary :cell-class-name="keyShow">
-            <div slot="empty">
-                <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
+  <div class="table">
+    <el-table :data="data" ref="table" height="750" show-summary :cell-class-name="keyShow">
+      <div slot="empty">
+        <i class="el-icon-loading" v-show="loadStatus == 1"></i> {{loadingText}}</div>
 
-            <el-table-column label="SKU" prop="产品代码" width="200" class-name="column"></el-table-column>
-            <el-table-column label="产品名称" prop="产品名称" width="350" class-name="column"></el-table-column>
-            <el-table-column label="品类" prop="品类" width="200" class-name="column" :filters="type" filter-placement="bottom-end" :filter-method="filterHandler"></el-table-column>
-            <el-table-column :label="item" :prop="item" width="220" class-name="column" v-for="(item, index) in months" :key="index" align="center"></el-table-column>
-            <el-table-column label="环比" width="230" :formatter="getHuanBi" class-name="column" align="center"></el-table-column>
+      <el-table-column label="SKU" prop="产品代码" width="200" class-name="column"></el-table-column>
+      <el-table-column label="产品名称" prop="产品名称" width="350" class-name="column"></el-table-column>
+      <el-table-column label="品类" prop="品类" width="180" class-name="column" :filters="type" filter-placement="bottom-end" :filter-method="filterHandler"></el-table-column>
+      <el-table-column :label="item" :prop="item" width="150" class-name="column" v-for="(item, index) in months" :key="index" align="center"></el-table-column>
+      <el-table-column label="环比" width="150" :formatter="getHuanBi" class-name="column" align="center"></el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <el-button @click.native.prevent="seeInfo(scope.row)" type="text">
+            查看销售情况表
+          </el-button>
 
-        </el-table>
-    </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script>
@@ -76,10 +83,22 @@ export default {
       const property = column["property"];
       // console.log(value);
       return row[property] == value;
+    },
+    seeInfo(row) {
+      this.$emit("seeInfo", row);
     }
   }
 };
 </script>
-
-<style>
+<style lang="scss">
+.table {
+    margin-left: 20px;
+  }
+  .column{
+    // padding: 8px 0!important;
+  }
+  .keyShow {
+    font-weight: bold;
+    color: red;
+  }
 </style>

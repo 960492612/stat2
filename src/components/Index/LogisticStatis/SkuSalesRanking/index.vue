@@ -3,10 +3,13 @@
     <search-date />
     <el-tabs v-model="activeTab">
       <el-tab-pane label="总表" name="first">
-        <my-table :data="data" v-if="activeTab == 'first'" :loadStatus="loadStatus" :months="months" :type="type"></my-table>
+        <my-table :data="data" v-if="activeTab == 'first'" :loadStatus="loadStatus" :months="months" :type="type" @seeInfo="seeInfo"></my-table>
       </el-tab-pane>
       <el-tab-pane label="前十名sku数据变化图" name="second">
         <SkuRanking :data="top10Data" :months="months" v-if="activeTab == 'second'"></SkuRanking>
+      </el-tab-pane>
+      <el-tab-pane label="sku销售详情" name="third">
+        <sku-info-table :sku="currentSku" :months="months"  v-if="activeTab == 'third'"/>
       </el-tab-pane>
 
     </el-tabs>
@@ -18,6 +21,7 @@ import { getSKURanking } from "api/logistics";
 import { formatTime } from "common/js/util";
 import SkuRanking from "./TopSkuStatis";
 import MyTable from "./Table";
+import SkuInfoTable from './SkuInfoTable'
 import SearchDate from "../common/searchDate";
 import { logisticsMixin } from "../common/mixin";
 export default {
@@ -25,19 +29,24 @@ export default {
   data() {
     return {
       type: [],
-      months: []
+      months: [],
+      currentSku: ''
       //   logisticsKey: LogisticsKey
     };
   },
   computed: {
     top10Data() {
+      if(!this.data||this.data.length<=0){
+        return []
+      }
       return this.data.slice(0, 10);
     }
   },
   components: {
     SkuRanking,
     SearchDate,
-    MyTable
+    MyTable,
+    SkuInfoTable
   },
   methods: {
     searchDataByDate() {
@@ -120,6 +129,10 @@ export default {
       }
       // console.log(months);
       this.months = months;
+    },
+    seeInfo(row){
+      this.activeTab = "third";
+      this.currentSku = row["产品代码"];
     }
   }
 };
@@ -149,7 +162,7 @@ export default {
   .expend-column {
     padding: 8px 5px;
     color: #666;
-    // background: rgba(30, 179, 216, 0.233);
+    
   }
   .toggleEchart {
     //   text-align: right;

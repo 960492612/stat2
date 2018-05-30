@@ -33,7 +33,6 @@ export default {
         `./components/Index`
       );
       let redirect = children.length > 0 ? children[0].path : "/entry"
-      // console.log(children);
       let routes = [
         {
           path: "/",
@@ -44,14 +43,8 @@ export default {
           children
         }
       ];
-
       this.$router.addRoutes(routes);
-      // if(this.currentLocation == ''){
       this.$router.push({ path: redirect});
-      // }
-      // this.$nextTick(() => {
-      //   // this.$router.push({ path: this.currentLocation });
-      // });
     },
     // 动态添加递归路由
     initRouter(router, path) {

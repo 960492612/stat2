@@ -9,7 +9,9 @@
       <el-tab-pane label="各平台海外仓发货占比" name="second">
         <DeliverByplatform :data="origin" v-if="activeTab == 'second'"></DeliverByplatform>
       </el-tab-pane>
-
+      <el-tab-pane label="产品组合发货情况" name="third">
+        <sku-group-info v-if="activeTab == 'third'"/>
+      </el-tab-pane>
     </el-tabs>
 
   </div>
@@ -21,6 +23,7 @@ import { getDeliverByPlatform } from "api/logistics";
 import MyTable from "./Table";
 import SearchDate from "../common/searchDate";
 import DeliverByplatform from "./StatisByPlatform";
+import SkuGroupInfo from './SkuGroupInfo'
 import { logisticsMixin } from "../common/mixin";
 export default {
   mixins: [logisticsMixin],
@@ -35,7 +38,8 @@ export default {
   components: {
     DeliverByplatform,
     MyTable,
-    SearchDate
+    SearchDate,
+    SkuGroupInfo
   },
   methods: {
     searchDataByDate() {
