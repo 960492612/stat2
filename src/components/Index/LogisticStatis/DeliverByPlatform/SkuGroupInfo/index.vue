@@ -1,39 +1,45 @@
 <template>
-    <div>
-        <div class="search">
-            <label for="">分组统计：</label>
-            <el-checkbox-group v-model="groupList" style="display: inline-block;height: auto;overflow:inherit;">
-                <el-checkbox label="发运仓库" border size="medium"></el-checkbox>
-                <el-checkbox label="国家" border size="medium"></el-checkbox>
-                <el-checkbox label="时间" border size="medium"></el-checkbox>
-            </el-checkbox-group>
-            <label for="">sku筛选：</label>
-            <el-input type="primary" size="medium" v-model="skuFilter" style="width:150px;" placeholder="输入sku"></el-input>
-            <label for="">产品数量过滤：</label>
-            <el-input type="primary" size="medium" v-model="totalFilter" style="width:150px;">
-                <el-button slot="append" @click="searchDataByDate">确认</el-button>
-            </el-input>
-        </div>
-        <div class="content">
-            <el-table :data="datas" max-height="650">
-                <el-table-column label="sku组合" prop="code" align="center" width="250">
-                    <template slot-scope="scope">
-                        <div v-html="wrapString(scope.row.code)">
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="产品名称" prop="name" header-align="center">
-                    <template slot-scope="scope">
-                        <div v-html="wrapString(scope.row.name)">
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="产品数量" prop="total" align="center" width="200" sortable></el-table-column>
-                <el-table-column label="订单数" prop="orderNumber" width="200" align="center" sortable></el-table-column>
-                <el-table-column :label="item" v-for="(item, index) in  groupList" :key="index" :prop="checkboxLable[item]" align="center"></el-table-column>
-            </el-table>
-        </div>
+  <div>
+    <div class="search">
+      <label for="">分组统计：</label>
+      <el-checkbox-group v-model="groupList" style="display: inline-block;height: auto;overflow:inherit;">
+        <el-checkbox label="发运仓库" border size="medium"></el-checkbox>
+        <el-checkbox label="国家" border size="medium"></el-checkbox>
+        <el-checkbox label="时间" border size="medium"></el-checkbox>
+      </el-checkbox-group>
+      <label for="">sku筛选：</label>
+      <el-input type="primary" size="medium" v-model="skuFilter" style="width:150px;" placeholder="输入sku"></el-input>
+      <label for="">产品数量过滤：</label>
+      <el-input type="primary" size="medium" v-model="totalFilter" style="width:150px;">
+        <el-button slot="append" @click="searchDataByDate">确认</el-button>
+      </el-input>
     </div>
+    <div class="content">
+      <el-table :data="datas" max-height="650">
+        <el-table-column label="sku组合" prop="code" align="center" width="250">
+          <template slot-scope="scope">
+            <div v-html="wrapString(scope.row.code)">
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="产品名称" prop="name" header-align="center" width="400">
+          <template slot-scope="scope">
+            <div v-html="wrapString(scope.row.name)">
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="数量明细" header-align="center" width="100">
+          <template slot-scope="scope">
+            <div v-html="wrapNumberString(scope.row.number)" style="text-align: right;">
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="产品总数" prop="total" align="center" width="200" sortable></el-table-column>
+        <el-table-column label="订单数" prop="orderNumber" width="200" align="center" sortable></el-table-column>
+        <el-table-column :label="item" v-for="(item, index) in  groupList" :key="index" :prop="checkboxLable[item]" align="center"></el-table-column>
+      </el-table>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -63,13 +69,15 @@ export default {
       });
     }
   },
-  created() {},
+  created() {
+    this.test()
+  },
   watch: {
     groupList() {
       this.searchDataByDate();
     },
     skuFilter(val) {
-      if ((!val || val == "")) {
+      if (!val || val == "") {
         this.datas = this.origin;
         return;
       }
@@ -98,12 +106,12 @@ export default {
             return;
           }
           this.origin = JSON.parse(JSON.stringify(res.data));
-          let temp = this.skuFilter 
-          this.skuFilter = null
+          let temp = this.skuFilter;
+          this.skuFilter = null;
           this.datas = res.data;
-          this.$nextTick(()=>{
-              this.skuFilter = temp
-          })
+          this.$nextTick(() => {
+            this.skuFilter = temp;
+          });
         } else {
           this.loadStatus = 0;
         }
@@ -111,7 +119,26 @@ export default {
     },
     wrapString(name) {
       return name.replace(/,/g, ";<br/>");
-    }
+    },
+    wrapNumberString(number) {
+      let order = number.split("+");
+      // console.log(order.length);
+      let ret = [];
+      order.forEach(item => {
+        let temp = item.split(",");
+        if (ret.length == 0) {
+          for (let i = 0; i < temp.length; i++) {
+            ret.push(Number(temp[i]));
+          }
+        }else{
+          for (let i = 0; i < temp.length; i++) {
+            ret[i] += Number(temp[i]);
+          }
+        }
+      });
+      return ret.join('<br/>')
+    },
+    
   }
 };
 </script>
