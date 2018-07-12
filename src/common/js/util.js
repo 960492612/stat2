@@ -64,6 +64,14 @@ export function getWeekDates(value) {
   return moment(year, 'YYYY').week(week).subtract(1, 'days').format('YYYY-MM-DD') + '至'
     + moment(year, 'YYYY').week(week).add(5, 'days').format('YYYY-MM-DD')
 }
+// 星期六开始到星期五
+export function getWeekDates_s_2_f(value) {
+  if (!value) return null;
+  let year = (value + "").substr(0, 4)
+  let week = Number((value + "").substr(4, 2))
+  return moment(year, 'YYYY').week(week).subtract(2, 'days').format('YYYY-MM-DD') + '至'
+    + moment(year, 'YYYY').week(week).add(4, 'days').format('YYYY-MM-DD')
+}
 export function numberToWeekStr(value) {
   return `${(value + "").substr(0, 4)}年第${(value + "").substr(
     4,

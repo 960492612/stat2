@@ -4,6 +4,7 @@
       <div>
         <label for="">时间：</label>
         <el-date-picker v-model="date" format="yyyy 第 WW 周" type="week" placeholder="选择时间段" size="medium" @change="checkDataByDateAndChannel"></el-date-picker>
+        <i class="el-icon-info" style="font-size:12px;">最终显示为周六到周五的时间段</i>
       </div>
 
       <div>
@@ -16,9 +17,9 @@
       <div>
         <!-- 次级 -->
         <label for="">次级渠道：</label>
-        <el-select v-model="selectedSubchannels" :placeholder="$t('search.placeholder.ssc')" style="width:400px;" multiple size="medium" filterable @change="checkDataByDateAndChannel" :loading="!subChannels" :loading-text="selectedTopChannels&&selectedTopChannels.length>0?$t('search.select.loading'):$t('search.select.pstc')">
+        <el-select v-model="selectedSubchannels" :placeholder="$t('search.placeholder.ssc')" style="width:400px;"  multiple size="medium" filterable @change="checkDataByDateAndChannel" :loading="!subChannels" :loading-text="selectedTopChannels&&selectedTopChannels.length>0?$t('search.select.loading'):$t('search.select.pstc')" >
           <el-option-group v-for="item in subChannels" :key="item.id" :value="item.name" :label="item.name" v-if="subChannels">
-            <el-option v-for="_item in item.children" :key="_item.id" :label="_item.name" :value="_item.id+'|'+_item.name">
+            <el-option v-for="_item in item.children" :key="_item.id" :label="_item.name" :value="_item.id+'|'+_item.name" >
               <span style="float: left">{{ _item.name }}</span>
               <span style="float: right; color: #8492a6;marginRight:15px; font-size: 13px">{{ _item.desc }}</span>
             </el-option>
@@ -88,14 +89,17 @@ export default {
   },
   computed: {
     selectedSubChannelsInfo() {
+      let uploadTemp =JSON.parse(JSON.stringify(this.uploadData))
+          this.uploadData = {}
       return (
         this.selectedSubchannels &&
         this.selectedSubchannels.map(contact => {
           let temp = contact.split("|");
-          this.$set(this.uploadData, temp[0], {
+          
+          this.$set(this.uploadData, temp[0], {...{
             channel_id: temp[0],
             time: this.uploadDate
-          });
+          }, ...uploadTemp[temp[0]]});
           return {
             id: temp[0],
             name: temp[1]
@@ -137,7 +141,8 @@ export default {
       }
     },
     // removeSubTag(tag) {
-    //   delete this.data.link[tag.value];
+    //   // console.log(tag)
+    //   delete this.uploadData[tag.split("|")[0]];
     // },
     _getTopChannelsByOwner() {
       getTopChannelsByOwner(this.id, 0).then(res => {
@@ -206,6 +211,7 @@ export default {
     selectedTopChannels(newVal) {
       this.searchSubChannelsMethod(newVal);
     }
+      
   }
 };
 </script>

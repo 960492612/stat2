@@ -18,6 +18,7 @@ import "echarts/lib/component/dataZoom";
 import "common/js/macarons";
 import { getRecordList } from "api/recordByChannel";
 import { mapGetters, mapActions } from "vuex";
+import { numberToWeekStr, getWeekDates_s_2_f } from "common/js/util";
 const yAxisIndexArr = {
   展现量: 0,
   阅读量: 0,
@@ -53,6 +54,7 @@ export default {
         // console.log(res.data)
       });
     },
+    // 构建dataset的数据源
     genareterTotalSource(data) {
       let dimensions = ["type"];
       let source = {};
@@ -95,7 +97,12 @@ export default {
           }
         },
         xAxis: {
-          type: "category"
+          type: "category",
+          axisLabel: {
+            formatter: (value, index)=>{
+              return getWeekDates_s_2_f(value)
+            }
+          },
           // boundaryGap: false
         },
         grid: [
@@ -165,7 +172,7 @@ export default {
             axisPointer: {
               snap: true,
               label: {
-                precision: 2
+                // precision: 2
               }
             },
             axisLine: {

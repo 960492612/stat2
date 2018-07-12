@@ -8,6 +8,19 @@ export function addRecords(data) {
         return Promise.resolve(res.data)
     })
 }
+
+export function editRecord(data) {
+    return axios.post(url + 'editRecord',  data  ).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
+export function deleteRecord(data) {
+    return axios.post(url + 'deleteRecord',  data  ).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}
+
 // 检测是否已添过该渠道在该时段的记录
 export function checkDataByDateAndChannel(data) {
     return axios.get(url + 'checkDataByDateAndChannel',  {params: data}  ).then((res) => {
