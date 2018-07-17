@@ -36,10 +36,10 @@ export const LogisticsByProductKey = {
   5: '品类'
 }
 export const roleDefaultTickets = {
-  1: [1,2,6,7,8,9,10,11,12,13,14],
+  1: [1,2,6,7,8,9,10,11,12,13,14, 16, 17],
   // 2: '推广管理员',
   3: [5,6,10],
-  // 4: '财务管理员',
+  4: [17],
   5: [7,9,10,11,12, 15],
   6: [1,2,3,4,7,8,9,10,16],
   7: [7,9,10,11,12, 15]
@@ -76,3 +76,11 @@ export const INPUTTYPES = {
   3: '多项选择',
   4: '时间选择'
 }
+
+export const UPLOADSTATUS = {
+  0: "拖拽zip文件到此 <span class='el-icon-upload'></span>",
+  1: "正在处理表格数据，请耐心等候 <span class='el-icon-loading'></span>",
+  2: "表格已成功上传 <span class='el-icon-success'></span>",
+  3: "表格上传失败，请重试，或联系管理员 <span class='el-icon-error'></span>",
+  4: "数据处理完毕"
+};
