@@ -37,9 +37,12 @@ export default {
     upload() {
       let result = this.genarateData(this.data);
       upload1(result).then(res => {
-        if(res.code == 1){
-          this.$message.success('上传成功')
+        if (res.code == 1) {
+          this.$message.success("上传成功");
           this.loading = 2;
+        } else {
+          this.$message.error("上传失败");
+          this.loading = 3;
         }
         // console.log(res);
       });
@@ -155,5 +158,21 @@ export default {
 .uploadArea {
   margin-top: 20px;
   width: 50%;
+}
+.fileList {
+  text-align: center;
+  h5 {
+    // text-align: center;
+    line-height: 30px;
+  }
+  ul {
+    li {
+      line-height: 24px;
+      color: rgb(240, 96, 96);
+      span {
+        color: #333;
+      }
+    }
+  }
 }
 </style>
