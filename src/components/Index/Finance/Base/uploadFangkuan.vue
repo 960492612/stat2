@@ -56,8 +56,8 @@ export default {
         delete item[" 商品ID"];
         delete item["商品ID"];
         delete item["订单支付时间"];
-        item["货币"] = item["放款币种"];
-        item["时间"] = item["放款时间"];
+        item["货币"] = /CNH|CNY/.test(item["放款币种"])?'人民币':'美元';
+        item["时间"] = item["放款时间"].replace(/\-/g, '/');
         for (let key in item) {
           if (!isNaN(item[key])) {
             item[key] = Number(item[key]);

@@ -51,11 +51,13 @@ export default {
       return data.map(item => {
         let orderId = item["交易信息"].match(/\d+/);
         item["订单号"] = orderId ? orderId[0] : "无";
+        item['时间'] = item['时间'].replace(/\-/g, '/')
         let result;
         if (item["资金明细"]) {
           result = item["资金明细"].match(/(\+|\-)([A-Z]+)\s*(\d+[.*]\d*)/);
           item["资金方向"] = result[1] == "+" ? 1 : -1;
-          item["货币"] = result[2];
+          // 合并人民币
+          item["货币"] = /CNH|CNY/.test(result[2])?'人民币':'美元';
           item["数额"] = Number(result[3]);
         } else {
           if (item["出款"]) {
@@ -67,7 +69,7 @@ export default {
             result = item["入款"].match(/([A-Z]+)(\d+[.*]\d*)/);
             item["资金方向"] = 1;
           }
-          item["货币"] = result[1];
+          item["货币"] = /CNH|CNY/.test(result[1])?'人民币':'美元';
           item["数额"] = Number(result[2]);
         }
 
@@ -108,6 +110,7 @@ export default {
             if (!result[i]) {
               throw new Error("压缩包文件格式不正确，请先处理");
             }
+
             output[keys[i - 1]] = result[i];
           }
         }
