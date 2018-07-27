@@ -29,15 +29,18 @@ export default {
   data() {
     return {
       data: [],
-      filesTitle: []
+      filesTitle: [],
+      pass: true
     };
   },
   computed: {},
   methods: {
     upload() {
       let result = this.genarateData(this.data);
-      console.log(result);
-
+      if (!this.pass) {
+        this.$message.info("上传数据的时间已重复，请检查");
+        return;
+      }
       upload2(result).then(res => {
         if (res.code == 1) {
           this.$message.success("上传成功");
@@ -58,6 +61,14 @@ export default {
         delete item["订单支付时间"];
         item["货币"] = /CNH|CNY/.test(item["放款币种"])?'人民币':'美元';
         item["时间"] = item["放款时间"].replace(/\-/g, '/');
+        // 检查时间
+        let time = new Date(item['时间'])
+        time=formatTime(time.getTime(), 'yyyy-MM')
+        if(this.already.some(item=>{
+          return item['月份'] == time
+        })){
+          this.pass = false
+        }
         for (let key in item) {
           if (!isNaN(item[key])) {
             item[key] = Number(item[key]);
@@ -67,6 +78,8 @@ export default {
       });
     },
     decodeZip(zip) {
+      this.data = []
+      this.filesTitle = []
       JSzip.loadAsync(zip, {
         decodeFileName: function(bytes) {
           return iconv.decode(bytes, "gb2312");

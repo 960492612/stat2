@@ -1,10 +1,10 @@
 <template>
   <div class="FinnaceRecord">
     <div class="upload-wrap">
-      <el-button type="primary" @click="showZijinBox">上传资金数据zip压缩包</el-button>
-      <el-button type="primary" @click="showFangkuanBox">上传平台放款数据zip压缩包</el-button>
-      <upload-zijin ref="uploadZijin" />
-      <upload-fangkuan ref="uploadFangkuan" />
+      <el-button type="primary" @click="showZijinBox" title="点击展开或收起上传栏">上传资金数据zip压缩包</el-button>
+      <el-button type="primary" @click="showFangkuanBox" title="点击展开或收起上传栏">上传平台放款数据zip压缩包</el-button>
+      <upload-zijin ref="uploadZijin" :already="zijinMonth"/>
+      <upload-fangkuan ref="uploadFangkuan" :already="fangkuanMonth"/>
     </div>
     <div class="record">
       <div class="zijin">
@@ -90,7 +90,7 @@ export default {
         cancelButtonText: this.$t("product.delete.cancel"),
         type: "warning"
       }).then(() => {
-        destroyZijin({ year: time[0], month: time[1] }).then(res => {
+        destroyZijin({ year: Number(time[0]), month: Number(time[1]) }).then(res => {
           if (res.code == 1) {
             this.$message.success("删除成功");
           }else{
@@ -107,7 +107,7 @@ export default {
         cancelButtonText: this.$t("product.delete.cancel"),
         type: "warning"
       }).then(() => {
-        destroyFangkuan({ year: time[0], month: time[1] }).then(res => {
+        destroyFangkuan({ year: Number(time[0]), month: Number(time[1]) }).then(res => {
           if (res.code == 1) {
             this.$message.success("删除成功");
           }else{

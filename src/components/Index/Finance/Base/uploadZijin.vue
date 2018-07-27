@@ -5,14 +5,14 @@
     <div id="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
 
       <span v-html="tip"></span>
-      <el-button style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">打开文件夹</el-button>
+      <el-button style="margin-left:16px;" size="mini" type="text" @click="handleUpload">打开文件夹</el-button>
     </div>
     <div class="fileList" v-show="loading == 4">
       <el-button type="primary" @click="upload" size="medium">确认上传</el-button>
       <h5>检测到的文件:</h5>
       <ul>
         <li v-for="(item, index) in filesTitle" :key="index">
-          {{item}}
+          <span class="el-icon-document"></span>&nbsp;{{item}}
         </li>
       </ul>
     </div>
@@ -24,18 +24,30 @@ import { mixin } from "./mixin.js";
 import JSzip from "jszip";
 import iconv from "iconv-lite";
 import { upload1 } from "api/finance";
+import { formatTime } from "common/js/util";
 export default {
   mixins: [mixin],
+  props: {
+    already: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       data: [],
-      filesTitle: []
+      filesTitle: [],
+      pass: true
     };
   },
   computed: {},
   methods: {
     upload() {
       let result = this.genarateData(this.data);
+      if (!this.pass) {
+        this.$message.info("上传数据的时间已重复，请检查");
+        return;
+      }
       upload1(result).then(res => {
         if (res.code == 1) {
           this.$message.success("上传成功");
@@ -48,16 +60,28 @@ export default {
       });
     },
     genarateData(data) {
+      // if(data[0]['时间'])
       return data.map(item => {
-        let orderId = item["交易信息"].match(/\d+/);
+        let jiaoyi_reg = item["业务类型"] == "代扣" ? /LP\d+/g : /\d+/;
+        let orderId = item["交易信息"].match(jiaoyi_reg);
         item["订单号"] = orderId ? orderId[0] : "无";
-        item['时间'] = item['时间'].replace(/\-/g, '/')
+        item["时间"] = item["时间"].replace(/\-/g, "/");
+        // 检查时间
+        let time = new Date(item["时间"]);
+        time = formatTime(time.getTime(), "yyyy-MM");
+        if (
+          this.already.some(item => {
+            return item["月份"] == time;
+          })
+        ) {
+          this.pass = false;
+        }
         let result;
         if (item["资金明细"]) {
           result = item["资金明细"].match(/(\+|\-)([A-Z]+)\s*(\d+[.*]\d*)/);
           item["资金方向"] = result[1] == "+" ? 1 : -1;
           // 合并人民币
-          item["货币"] = /CNH|CNY/.test(result[2])?'人民币':'美元';
+          item["货币"] = /CNH|CNY/.test(result[2]) ? "人民币" : "美元";
           item["数额"] = Number(result[3]);
         } else {
           if (item["出款"]) {
@@ -69,7 +93,7 @@ export default {
             result = item["入款"].match(/([A-Z]+)(\d+[.*]\d*)/);
             item["资金方向"] = 1;
           }
-          item["货币"] = /CNH|CNY/.test(result[1])?'人民币':'美元';
+          item["货币"] = /CNH|CNY/.test(result[1]) ? "人民币" : "美元";
           item["数额"] = Number(result[2]);
         }
 
@@ -80,6 +104,8 @@ export default {
       });
     },
     decodeZip(zip) {
+      this.data = [];
+      this.filesTitle = [];
       JSzip.loadAsync(zip, {
         decodeFileName: function(bytes) {
           return iconv.decode(bytes, "gb2312");
@@ -87,7 +113,6 @@ export default {
       })
         .then(_zip => {
           _zip.forEach((relativePath, zipEntry) => {
-            // console.log(zipEntry);
             this.genarateFile(zipEntry);
           });
         })

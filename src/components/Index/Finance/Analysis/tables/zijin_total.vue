@@ -1,14 +1,6 @@
 <template>
   <div class="FinanceResult">
-    <div class="search">
-      <el-date-picker v-model="time" placeholder="选择月份" type="month"></el-date-picker>
-      <el-button type="primary" @click="getZiJinHuiZong" size="medium">搜索</el-button>
-      <json-excel class="btn btn-default" :data="result" :fields="json_fields" :name="xlsName" v-if="result&&result.length>0" style="display:inline-block;">
-        <el-button type="success" icon="el-icon-download" size="medium">
-          导出Excel
-        </el-button>
-      </json-excel>
-    </div>
+    
     <div class="content">
       <el-table :data="result" v-loading="loading" max-height="650" element-loading-text="拼命加载中">
         <el-table-column label="name" prop="name" header-align="center" align="center"></el-table-column>
@@ -18,6 +10,7 @@
         <el-table-column label="放款净额" prop="放款净额" header-align="center" align="center"></el-table-column>
         <el-table-column label="退款净额" prop="退款净额" header-align="center" align="center"></el-table-column>
         <el-table-column label="提现" prop="提现" header-align="center" align="center"></el-table-column>
+        <el-table-column label="收款" prop="收款" header-align="center" align="center"></el-table-column>
         <el-table-column label="代扣" prop="代扣" header-align="center" align="center"></el-table-column>
         <el-table-column label="手续费" prop="手续费" header-align="center" align="center"></el-table-column>
         <el-table-column label="赔付卖家" prop="赔付卖家" header-align="center" align="center"></el-table-column>
@@ -28,7 +21,7 @@
 <script>
 import { getZiJinHuiZong } from "api/finance";
 import { toDecimal, formatTime } from "common/js/util";
-import JsonExcel from "vue-json-excel";
+
 export default {
   data() {
     return {
@@ -45,7 +38,7 @@ export default {
       }
       return `${formatTime(this.time.getTime(), "yyyy年MM月")}资金汇总表.xls`;
     },
-    json_fields(){
+    fields(){
       if (this.result.length<=0) {
         return {}
       }
@@ -56,10 +49,19 @@ export default {
       return ret
     }
   },
-  components:{
-    JsonExcel
+  watch:{
+    result(newVal){
+      this.$emit('resultChange', {result: newVal, xlsName: this.xlsName, fields: this.fields})
+    }
   },
+  // components:{
+  //   JsonExcel
+  // },
   methods: {
+    loadData(time){
+      this.time = time
+      this.getZiJinHuiZong()
+    },
     getZiJinHuiZong() {
       this.loading = true;
       getZiJinHuiZong({

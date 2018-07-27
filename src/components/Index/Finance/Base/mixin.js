@@ -1,4 +1,3 @@
-
 import XLSX from "xlsx";
 import { UPLOADSTATUS } from "common/js/config";
 export const mixin = {
@@ -16,6 +15,7 @@ export const mixin = {
   methods: {
     toggleShow() {
       this.show = !this.show;
+      this.loading = 0
     },
     readerData(itemFile, codeType) {
       // raw: true 不将格式进行转化
@@ -23,10 +23,12 @@ export const mixin = {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       const results = XLSX.utils.sheet_to_json(worksheet);
-      this.loading = 4
+      this.loading = 4;
       return results;
     },
     handleDrop(e) {
+      // this.data = [];
+      // document.getElementById("excel-upload-input").value = ''
       e.stopPropagation();
       e.preventDefault();
       const files = e.dataTransfer.files;
@@ -49,6 +51,8 @@ export const mixin = {
       document.getElementById("excel-upload-input").click();
     },
     handleFileChange(e) {
+      // this.data = [];
+      // document.getElementById("excel-upload-input").value = ''
       const files = e.target.files;
       const itemFile = files[0]; // only use files[0]
       this.decodeZip(itemFile);

@@ -26,7 +26,28 @@ export function getFangkuanHuiZong(data) {
     return Promise.resolve(res.data);
   });
 }
-
+// 查询放款汇总表(不匹配的)
+export function getFangkuanHuiZong_no_matched(data) {
+  return axios.get(url + "getFangkuanHuiZong_no_matched", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+// 查询null业务汇总表
+export function getNullTotal(data) {
+  return axios.get(url + "getNullTotal", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+export function getTuikuan(data) {
+  return axios.get(url + "getTuikuan", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+export function getYunfei(data) {
+  return axios.get(url + "getYunfei", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
 export function getZijinMonth() {
   return axios.get(url + "getZijinMonth").then(res => {
     return Promise.resolve(res.data);
