@@ -70,3 +70,14 @@ export function destroyFangkuan(data) {
     return Promise.resolve(res.data);
   });
 }
+
+export function getNoMatchInZijin(data) {
+  return axios.get(url + "getNoMatchInZijin", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+export function getNoMatchInFangkuan(data) {
+  return axios.get(url + "getNoMatchInFangkuan", { params: data }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}

@@ -20,6 +20,12 @@
           <el-tab-pane label="运费汇总" name="six">
               <yunfei ref="six" @resultChange="resultChange"/>
           </el-tab-pane>
+          <el-tab-pane label="放款有资金无" name="seven">
+              <no-match-in-zijin ref="seven" @resultChange="resultChange"/>
+          </el-tab-pane>
+          <el-tab-pane label="放款无资金有" name="eight">
+              <no-match-in-fangkuan ref="eight" @resultChange="resultChange"/>
+          </el-tab-pane>
         </el-tabs>
     </div>
 </template>
@@ -32,6 +38,8 @@ import NullTotal from './tables/null_total'
 import FangkuanNoMatch from './tables/fangkuan_no_match'
 import Tuikuan from './tables/tuikuan'
 import Yunfei from './tables/yunfei'
+import NoMatchInZijin from './tables/noMatchInZijin'
+import NoMatchInFangkuan from './tables/noMatchInFangkuan'
 export default {
     data(){
         return {
@@ -48,7 +56,9 @@ export default {
         NullTotal,
         FangkuanNoMatch,
         Tuikuan,
-        Yunfei
+        Yunfei,
+        NoMatchInZijin,
+        NoMatchInFangkuan
     },
     
     methods:{
