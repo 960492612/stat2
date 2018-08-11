@@ -41,7 +41,7 @@ export default {
       if (!this.time) {
         return "汇总表";
       }
-      return `${formatTime(this.time.getTime(), "yyyy年MM月")}放款汇总表.xls`;
+      return `${formatTime(this.time.getTime(), "yyyy年MM月")}放款汇总（匹配）表.xls`;
     },
     json_fields() {
       if (this.result.length <= 0) {

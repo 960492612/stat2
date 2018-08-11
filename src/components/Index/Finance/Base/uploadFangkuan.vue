@@ -24,8 +24,15 @@ import { mixin } from "./mixin.js";
 import JSzip from "jszip";
 import iconv from "iconv-lite";
 import { upload2 } from "api/finance";
+import { formatTime } from "common/js/util";
 export default {
   mixins: [mixin],
+  props: {
+    already: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       data: [],
@@ -100,7 +107,7 @@ export default {
       if (!file.dir) {
         let output = {};
         let keys = ["店铺", "fileType"];
-        let reg = /\/(A\d+)\/\d+月\.(csv|xls)/;
+        let reg = /\/(A\d+)\/[\s\S]+\.(csv|xls)/;
         let result = file.name.match(reg);
         let data = null;
         // console.log(result)

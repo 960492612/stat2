@@ -32,7 +32,7 @@ export default {
       if (!this.time) {
         return "汇总表";
       }
-      return `${formatTime(this.time.getTime(), "yyyy年MM月")}退款汇总表.xls`;
+      return `${formatTime(this.time.getTime(), "yyyy年MM月")}运费汇总表.xls`;
     },
     fields(){
       if (this.result.length<=0) {

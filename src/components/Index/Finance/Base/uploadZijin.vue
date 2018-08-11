@@ -125,7 +125,7 @@ export default {
       if (!file.dir) {
         let output = {};
         let keys = ["账户", "店铺", "货币", "fileType"];
-        let reg = /\/(支付宝|速卖通)账户\/(\w+)\/(CNY|CNH|美元|人民币)[\u4e00-\u9fa5]+\.(csv|xls)/;
+        let reg = /\/(支付宝|速卖通)[\u4e00-\u9fa5]*\/(\w+)\/(CNY|CNH|美元|人民币)[\u4e00-\u9fa5]+\.(csv|xls)/;
         let result = file.name.match(reg);
         let data = null;
         // console.log(result)
@@ -139,7 +139,7 @@ export default {
             output[keys[i - 1]] = result[i];
           }
         }
-        if (output.fileType == "csv") {
+        if (output.fileType != "xls") { 
           // this.readerData(file);
           file.async("arraybuffer").then(blob => {
             blob = iconv.decode(Buffer.from(blob), "GBK");
